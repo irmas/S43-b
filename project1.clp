@@ -31,6 +31,12 @@
 	(slot Feature2 (type SYMBOL) (allowed-symbols Plane Hole Slot) (default none))
 	(slot Relationship (type SYMBOL) (allowed-symbols Contact Perpendicular Start_in Lead_to Coaxial Cross) (default none))
 )
+(deftemplate Tool "Definition of Tool"
+	(slot Feature (type SYMBOL) (default none)) ;; H1, H2 on associe un outil à un trou / plan
+	(slot MinDiameter (type FLOAT) (default 0.0))
+	(slot MaxDiameter (type FLOAT) (default 1000.0))
+	(slot MinLength (type FLOAT) (default 0.0))
+)
 
 
 (defrule Init "Rule which triggers with the no-fact fact"
@@ -73,13 +79,51 @@
 (assert(Hole (Name H5)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(Orientation _X)))
 (assert(Hole (Name H6)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(Orientation _X)))
 
-;; ---------- Step 2 ----------
 
+;;-----Step 3------
 (defrule deepDrilling "Deep drilling"
-	?feature <- (Hole (Name ?Nam) (Orientation ?Ori))
+	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype NonThrough) (Diameter ?Dia))
+	(test(>=(/ ?Len ?Dia)2.0))
 =>
 	(printout t "Deep drilling " ?Nam crlf)
+	(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
 	(retract ?feature)
 )
-;; ---------- Step 3 ----------
-
+(defrule Drilling "drilling normal"
+	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype NonThrough) (Diameter ?Dia))
+	(test(<(/ ?Len ?Dia)2.0))
+=>
+	(printout t "drilling Normal" ?Nam crlf)
+	(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
+	(retract ?feature)
+)
+(defrule Drilling "drilling normal Through"
+	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype Through) (Diameter ?Dia))
+=>
+	(printout t "drilling Normal" ?Nam crlf)
+	(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
+	(retract ?feature)
+)
+(defrule MillingHole "Milling Hole"
+	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype Through) (Diameter ?Dia))
+=>
+	(printout t "Milling Hole" ?Nam crlf)
+	(assert(Tool (Feature ?Nam)(MaxDiameter (- ?Dia 4))(MinLength ?Len)))
+	(modify ?feature (Diameter (- ?Dia 2)))
+)
+(defrule FaceMilling "Face Milling"  ;;;;; Attention ! rajouter une condition pour vérifier que la direction d'usingage est egale à l'orientation
+	?plane1 <- (Plan (Name ?Nam) (Width ?Width) (Length ?Len))
+	?relation <- (Relationship (Feature1 ?Nam)(Feature2 ?Ft)(Relationship Perpendicular))
+	?plane2 <- (Plan (Name ?Ft) (Width ?Width2) (Length ?Len))
+=>
+	(printout t "Face Milling" ?Nam crlf)
+	(assert(Tool (Feature ?Nam)(MaxDiameter (- ?Dia 4))(MinLength ?Len)))
+	(retract ?feature)
+)
+(defrule SideMilling "Side Milling"
+	?feature <- (Plan (Name ?Nam) (Width ?Len) (Length ?Len))
+=>
+	(printout t "Side Milling" ?Nam crlf)
+	(assert(Tool (Feature ?Nam)(MinLength ?Len)))
+	(retract ?feature)
+)
