@@ -69,9 +69,18 @@
 
 ;; ---------- Step 2 ----------
 
-(defrule deepDrilling "Deep drilling"
+(defrule holeFeature "Rules to implement is the feature is a hole"
 	?feature <- (Hole (Name ?Nam) (Orientation ?Ori))
 =>
-	(printout t "Deep drilling " ?Nam crlf)
-	(retract ?feature)
+	(printout t "Direction of machining: " ?Ori crlf)
 )
+
+(defrule faceMilling "Rules to implement is the feature is a hole"
+	?feature <- (Hole (Name ?Nam) (Orientation ?Ori))
+=>
+	(printout t "Direction of machining: " ?Ori crlf)
+)
+
+
+;; ---------- Step 3 ----------
+(defrule 
