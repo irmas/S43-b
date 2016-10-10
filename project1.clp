@@ -5,14 +5,14 @@
 	(slot Diameter (type FLOAT) (default 0.0))
 	(slot Depth (type FLOAT) (default 0.0))
 	(slot Ftype (type SYMBOL) (allowed-symbols NonThrough Through))
-	(slot Orientation (type SYMBOL) (allowed-symbols X Y Z _X _Y _Z))
+	(slot Orientation (type INTEGER))
 )
 
 (deftemplate Plan "Definition of the plan structure"
 	(slot Name (type SYMBOL) (default none))
 	(slot Length (type FLOAT) (default 0.0))
 	(slot Width (type FLOAT) (default 0.0))
-	(slot Orientation (type SYMBOL) (allowed-symbols X Y Z _X _Y _Z))
+	(slot Orientation (type INTEGER))
 )
 
 (deftemplate Slot "Definition of the slot structure"
@@ -23,13 +23,13 @@
 	(slot Ftype (type SYMBOL) (allowed-symbols NonThrough Through))
 	(slot Inverse (type SYMBOL) (allowed-symbols NonInverse Inverse))
 	(slot Bottom (type SYMBOL) (allowed-symbols Round Square None)(default Round))
-	(slot Orientation (type SYMBOL) (allowed-symbols X Y Z _X _Y _Z))
+	(slot Orientation (type INTEGER))
 )
 
-(deftemplate Relationships "Definition of the relationships"
-	(slot Feature1 (type SYMBOL) (allowed-symbols Plane Hole Slot) (default none))
-	(slot Feature2 (type SYMBOL) (allowed-symbols Plane Hole Slot) (default none))
-	(slot Relationship (type SYMBOL) (allowed-symbols Contact Perpendicular Start_in Lead_to Coaxial Cross) (default none))
+(deftemplate Relationship "Definition of the relationships"
+	(slot Feature1 (type SYMBOL) (default none))
+	(slot Feature2 (type SYMBOL) (default none))
+	(slot Relation (type SYMBOL) (allowed-symbols Contact Perpendicular Start_in Lead_to Coaxial Cross) (default none))
 )
 (deftemplate Tool "Definition of Tool"
 	(slot Feature (type SYMBOL) (default none)) ;; H1, H2 on associe un outil à un trou / plan
@@ -38,10 +38,15 @@
 	(slot MinLength (type FLOAT) (default 0.0))
 )
 
+(deftemplate MachiningDirection "Determine direction of machining"
+	(slot Name (type SYMBOL) (default none))
+	(slot Orientation (type INTEGER))
+)
 
 (defrule Init "Rule which triggers with the no-fact fact"
 (initial-fact)
 =>
+<<<<<<< HEAD
 ;;(assert(Plan (Name P1)(Length 100.0)(Width 50.0)(Orientation Z)))
 (assert(Plan (Name P2)(Length 50.0)(Width 50.0)(Orientation Z)))
 (assert(Plan (Name P3)(Length 50.0)(Width 20.0)(Orientation Y)))
@@ -79,6 +84,44 @@
 (assert(Hole (Name H5)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(Orientation _X)))
 (assert(Hole (Name H6)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(Orientation _X)))
 
+;; ---------- Step 2 ----------
+
+(defrule Hole "Rules to implement is the feature is a hole"
+	?hole <- (Hole (Name ?Nam) (Orientation ?Ori))
+=>
+	(printout t "Direction of machining: " ?Ori crlf)
+	(assert(MachiningDirection (Name ?Nam)(Direction ?Ori)))
+)
+
+(defrule throughHole "Rules to implement is the feature is a Throughout hole"
+	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+=>
+	(printout t "Direction of machining: " ?Ori "or: -" ?Ori crlf)
+	(assert(MachiningDirection (Name ?Nam)(Direction (* ?Ori -1))))
+)
+
+(defrule faceSideMilling "Machining direction if no interactions bt planes"
+	?plane <- (Plane (Name ?Nam) (Orientation ?Ori))
+	?relation <- (not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
+=>
+	(assert(MachiningDirection (Name ?Nam)(Direction 1)))	
+	(assert(MachiningDirection (Name ?Nam)(Direction 2)))	
+	(assert(MachiningDirection (Name ?Nam)(Direction 3)))	
+	(assert(MachiningDirection (Name ?Nam)(Direction -1)))	
+	(assert(MachiningDirection (Name ?Nam)(Direction -2)))	
+	(assert(MachiningDirection (Name ?Nam)(Direction -3)))	
+	(retract(MachiningDirection (Name ?Nam)(Direction *(?Ori -1))))	
+)
+
+(defrule perpendicularPlanes "Machining direction for perpendicular planes"
+	?plane1 <- (Plane (Name ?Nam1) (Length ?Len1) (Orientation ?Ori1))
+	?plane2 <- (Plane (Name ?Nam2) (Length ?Len2) (Orientation ?Ori2))	
+	?relation <- (Relationship (Feature1 ?Nam1) (Feature2 ?Nam2) (Relation Perpendicular))
+	(test(>(?Len1 ?Len2)))
+=>
+	(printout t "Direction of machining: " ?Ori "or: -" ?Ori crlf)
+	(assert(MachiningDirection (Name ?Nam)(Direction (* ?Ori -1))))
+)
 
 ;;-----Step 3------
 (defrule deepDrilling "Deep drilling"
