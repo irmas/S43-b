@@ -102,13 +102,37 @@
 )
 
 (defrule perpendicularPlanes "Machining direction for perpendicular planes"
-	?plane1 <- (Plane (Name ?Nam1) (Length ?Len1) (Orientation ?Ori1))
-	?plane2 <- (Plane (Name ?Nam2) (Length ?Len2) (Orientation ?Ori2))	
+	?plane1 <- (Plane (Name ?Nam1) (Length ?Len1) (Width ?Wid1) (Orientation ?Ori1))
+	?plane2 <- (Plane (Name ?Nam2) (Length ?Len2) (Width ?Wid2) (Orientation ?Ori2))	
 	?relation <- (Relationship (Feature1 ?Nam1) (Feature2 ?Nam2) (Relation Perpendicular))
-	(test(>(?Len1 ?Len2)))
 =>
-	(printout t "Direction of machining: " ?Ori "or: -" ?Ori crlf)
-	(assert(MachiningDirection (Name ?Nam)(Direction (* ?Ori -1))))
+	(if (>((* ?Len1 ?Wid1) (* ?Len2 ?Wid2)))
+		((printout t "Direction of machining: " ?Ori1 crlf)
+		(assert(MachiningDirection (Name ?Nam1)(Direction ?Ori1))))
+		((printout t "Direction of machining: " ?Ori2 crlf)
+		(assert(MachiningDirection (Name ?Nam2)(Direction ?Ori2))))
+	)
+
+)
+
+(defrule perpendicularPlanes "Machining direction for contact planes" ;;need  to include "machined seperatly" feature
+	?plane1 <- (Plane (Name ?Nam1) (Length ?Len1) (Width ?Wid1) (Orientation ?Ori1))
+	?plane2 <- (Plane (Name ?Nam2) (Length ?Len2) (Width ?Wid2) (Orientation ?Ori2))	
+	?relation <- (Relationship (Feature1 ?Nam1) (Feature2 ?Nam2) (Relation Contact))
+=>
+	(printout t "Direction of machining: " ?Ori1 crlf)
+ 	(assert(MachiningDirection (Name ?Nam1)(Direction ?Ori1)))
+ 	(assert(MachiningDirection (Name ?Nam2)(Direction ?Ori2)))
+
+)
+
+(defrule perpendicularPlanes "Machining direction for bottom rounded slot/pocket" ;;need  to include "machined seperatly" feature
+	?slot <- (Plane (Name ?Nam) (Ftype Through) (Bottom Round) (Orientation ?Ori))
+=>
+	(printout t "Direction of machining: " ?Ori1 " or: " ? crlf)
+ 	(assert(MachiningDirection (Name ?Nam1)(Direction ?Ori1)))
+ 	(assert(MachiningDirection (Name ?Nam2)(Direction ?Ori2)))
+
 )
 ;; ---------- Step 3 ----------
 (defrule 
