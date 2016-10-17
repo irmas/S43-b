@@ -23,7 +23,8 @@
 	(slot Ftype (type SYMBOL) (allowed-symbols NonThrough Through))
 	(slot Inverse (type SYMBOL) (allowed-symbols NonInverse Inverse))
 	(slot Bottom (type SYMBOL) (allowed-symbols Round Square None)(default Round))
-	(slot Orientation (type INTEGER))
+	(slot BottomOrientation (type INTEGER))
+	(slot SideOrientation (type INTEGER))
 )
 
 (deftemplate Relationship "Definition of the relationships"
@@ -46,44 +47,43 @@
 
 (defrule Init "Rule which triggers with the no-fact fact"
 (initial-fact)
-=>
-;;(assert(Plan (Name P1)(Length 100.0)(Width 50.0)(Orientation Z)))
-(assert(Plan (Name P2)(Length 50.0)(Width 50.0)(Orientation Z)))
-(assert(Plan (Name P3)(Length 50.0)(Width 20.0)(Orientation Y)))
-(assert(Plan (Name P4)(Length 50.0)(Width 20.0)(Orientation _Y)))
-;;(assert(Plan (Name P3)(Length 150.0)(Width 40.0)(Orientation Y)))
-;;(assert(Plan (Name P4)(Length 150.0)(Width 40.0)(Orientation _Y)))
-;;(assert(Plan (Name P5)(Length 50.0)(Width 20.0)(Orientation Y)))
-;;(assert(Plan (Name P6)(Length 50.0)(Width 20.0)(Orientation _Y)))
-;;(assert(Plan (Name P7)(Length 50.0)(Width 6.0)(Orientation Z)))
-;;(assert(Plan (Name P8)(Length 50.0)(Width 6.0)(Orientation _Z)))
-;;(assert(Plan (Name P9)(Length 50.0)(Width 6.0)(Orientation Z)))
-;;(assert(Plan (Name P10)(Length 50.0)(Width 6.0)(Orientation _Z)))
-;;(assert(Plan (Name P11)(Length 20.0)(Width 6.0)(Orientation X)))
-;;(assert(Plan (Name P12)(Length 20.0)(Width 6.0)(Orientation _X)))
-;;(assert(Plan (Name P13)(Length 20.0)(Width 6.0)(Orientation X)))
-;;(assert(Plan (Name P14)(Length 20.0)(Width 6.0)(Orientation _X)))
-;;(assert(Plan (Name P15)(Length 50.0)(Width 20.0)(Orientation _Y)))
-;;(assert(Plan (Name P16)(Length 40.0)(Width 10.0)(Orientation _X)))
-;;(assert(Plan (Name P17)(Length 40.0)(Width 10.0)(Orientation _X)))
-(assert(Slot (Name S1)(Length 50.0)(Height 5.0)(Width 6.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(Orientation X))
-(assert(Slot (Name S2)(Length 50.0)(Height 5.0)(Width 6.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(Orientation X)))
-(assert(Slot (Name S3)(Length 40.0)(Height 20.0)(Width 20.0)(Inverse NonInverse)(Ftype NonThrough)(Bottom Square)(Orientation X)))
-(assert(Slot (Name S4)(Length 40.0)(Height 30.0)(Width 28.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(Orientation _Z)))
-(assert(Slot (Name S5)(Length 50.0)(Height 8.0)(Width 10.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(Orientation _Y)))
-(assert(Slot (Name S6)(Length 50.0)(Height 4.0)(Width 24.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(Orientation _Y)))
-(assert(Slot (Name S7)(Length 50.0)(Height 8.0)(Width 10.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(Orientation _Y)))
-(assert(Slot (Name S8)(Length 50.0)(Height 4.0)(Width 24.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(Orientation _Y)))
-(assert(Slot (Name S9)(Length 50.0)(Height 6.0)(Width 20.0)(Inverse Inverse)(Ftype Through)(Bottom Square)(Orientation X)))
-(assert(Slot (Name S10)(Length 50.0)(Height 6.0)(Width 20.0)(Inverse Inverse)(Ftype Through)(Bottom Square)(Orientation X)))
-(assert(Slot (Name S11)(Length 50.0)(Height 10.0)(Width 100.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(Orientation _Z)))
-(assert(Hole (Name H1)(Diameter 12.0)(Depth 3.0)(Ftype NonThrough)(Orientation Z)))
-(assert(Hole (Name H2)(Diameter 12.0)(Depth 3.0)(Ftype NonThrough)(Orientation Z)))
-(assert(Hole (Name H3)(Diameter 6.0)(Depth 47.0)(Ftype Through)(Orientation Z)))
-(assert(Hole (Name H4)(Diameter 6.0)(Depth 47.0)(Ftype Through)(Orientation Z)))
-(assert(Hole (Name H5)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(Orientation _X)))
-(assert(Hole (Name H6)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(Orientation _X)))
-
+;;(assert(Plan (Name P1)(Length 100.0)(Width 50.0)(Orientation 3)))
+(assert(Plan (Name P2)(Length 50.0)(Width 50.0)(SideOrientation 3)))
+(assert(Plan (Name P3)(Length 50.0)(Width 20.0)(SideOrientation 2)))
+(assert(Plan (Name P4)(Length 50.0)(Width 20.0)(SideOrientation -2)))
+;;(assert(Plan (Name P3)(Length 150.0)(Width 40.0)(Orientation 2)))
+;;(assert(Plan (Name P4)(Length 150.0)(Width 40.0)(Orientation -2)))
+;;(assert(Plan (Name P5)(Length 50.0)(Width 20.0)(Orientation 2)))
+;;(assert(Plan (Name P6)(Length 50.0)(Width 20.0)(Orientation -2)))
+;;(assert(Plan (Name P7)(Length 50.0)(Width 6.0)(Orientation 3)))
+;;(assert(Plan (Name P8)(Length 50.0)(Width 6.0)(Orientation -3)))
+;;(assert(Plan (Name P9)(Length 50.0)(Width 6.0)(Orientation 3)))
+;;(assert(Plan (Name P10)(Length 50.0)(Width 6.0)(Orientation -3)))
+;;(assert(Plan (Name P11)(Length 20.0)(Width 6.0)(Orientation 1)))
+;;(assert(Plan (Name P12)(Length 20.0)(Width 6.0)(Orientation -1)))
+;;(assert(Plan (Name P13)(Length 20.0)(Width 6.0)(Orientation 1)))
+;;(assert(Plan (Name P14)(Length 20.0)(Width 6.0)(Orientation -1)))
+;;(assert(Plan (Name P15)(Length 50.0)(Width 20.0)(Orientation -2)))
+;;(assert(Plan (Name P16)(Length 40.0)(Width 10.0)(Orientation -1)))
+;;(assert(Plan (Name P17)(Length 40.0)(Width 10.0)(Orientation -1)))
+(assert(Slot (Name S1)(Length 50.0)(Height 5.0)(Width 6.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(NormalOrientation 3)(SideOrientation 1))
+(assert(Slot (Name S2)(Length 50.0)(Height 5.0)(Width 6.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(NormalOrientation 3)(SideOrientation 1)))
+(assert(Slot (Name S3)(Length 40.0)(Height 20.0)(Width 20.0)(Inverse NonInverse)(Ftype NonThrough)(Bottom Square)(NormalOrientation 3)(SideOrientation 1)))
+(assert(Slot (Name S4)(Length 40.0)(Height 30.0)(Width 28.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(NormalOrientation -3)(SideOrientation 3)))
+(assert(Slot (Name S5)(Length 50.0)(Height 8.0)(Width 10.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(NormalOrientation -3)(SideOrientation -2)))
+(assert(Slot (Name S6)(Length 50.0)(Height 4.0)(Width 24.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(NormalOrientation -3)(SideOrientation -2)))
+(assert(Slot (Name S7)(Length 50.0)(Height 8.0)(Width 10.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(NormalOrientation -3)(SideOrientation -2)))
+(assert(Slot (Name S8)(Length 50.0)(Height 4.0)(Width 24.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(NormalOrientation -3)(SideOrientation -2)))
+(assert(Slot (Name S9)(Length 50.0)(Height 6.0)(Width 20.0)(Inverse Inverse)(Ftype Through)(Bottom Square)(NormalOrientation -2)(SideOrientation 1)))
+(assert(Slot (Name S10)(Length 50.0)(Height 6.0)(Width 20.0)(Inverse Inverse)(Ftype Through)(Bottom Square)(NormalOrientation 2)(SideOrientation 1)))
+(assert(Slot (Name S11)(Length 50.0)(Height 10.0)(Width 100.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(NormalOrientation 3)(SideOrientation 2)))
+(assert(Hole (Name H1)(Diameter 12.0)(Depth 3.0)(Ftype NonThrough)(SideOrientation 3)))
+(assert(Hole (Name H2)(Diameter 12.0)(Depth 3.0)(Ftype NonThrough)(SideOrientation 3)))
+(assert(Hole (Name H3)(Diameter 6.0)(Depth 47.0)(Ftype Through)(SideOrientation 3)))
+(assert(Hole (Name H4)(Diameter 6.0)(Depth 47.0)(Ftype Through)(SideOrientation 3)))
+(assert(Hole (Name H5)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(SideOrientation -1)))
+(assert(Hole (Name H6)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(SideOrientation -1)))
+)
 ;; ---------- Step 2 ----------
 
 (defrule Hole "Rules to implement is the feature is a hole"
@@ -122,7 +122,6 @@
 	(cond (>((* ?Len1 ?Wid1) (* ?Len2 ?Wid2))) ((printout t "Direction of machining: " ?Ori1 crlf) (assert(MachiningDirection (Name ?Nam1)(Direction ?Ori1))))
 		(t ((printout t "Direction of machining: " ?Ori2 crlf) (assert(MachiningDirection (Name ?Nam2)(Direction ?Ori2)))))
 	)
-
 )
 
 (defrule contactPlane "Machining direction for contact planes" ;;need  to include "machined seperatly" feature
@@ -148,15 +147,8 @@
 	)
 )
 
-(defrule RoundPocket "Machining direction for bottom rounded slot/pocket" 
-	?slot <- (Plane (Name ?Nam) (Ftype Through) (Bottom Round) (BottomOrientation ?BotOri) (SideOrientation ?SidOri))
-=>
-	(printout t "Direction of machining: " ?BotOri " or: " ?SidOri " or: " (* ?SidOri -1) crlf)
- 	(assert(MachiningDirection (Name ?Nam)(Direction ?BotOri)))
- 	(assert(MachiningDirection (Name ?Nam)(Direction ?SidOri)))
-
-)
 ;;-----Step 3------
+;;-----Hole------
 (defrule deepDrilling "Deep drilling"
 	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype NonThrough) (Diameter ?Dia))
 	(test(>=(/ ?Len ?Dia)2.0))
@@ -187,19 +179,48 @@
 	(assert(Tool (Feature ?Nam)(MaxDiameter (- ?Dia 4))(MinLength ?Len)))
 	(modify ?feature (Diameter (- ?Dia 2)))
 )
-(defrule FaceMilling "Face Milling"  ;;;;; Attention ! rajouter une condition pour vérifier que la direction d'usingage est egale à l'orientation
-	?plane1 <- (Plan (Name ?Nam) (Width ?Width) (Length ?Len))
-	?relation <- (Relationship (Feature1 ?Nam)(Feature2 ?Ft)(Relationship Perpendicular))
-	?plane2 <- (Plan (Name ?Ft) (Width ?Width2) (Length ?Len))
+
+;;-----Face------
+(defrule FaceMillingWithPerpendicular "Face Milling"  ;;;;; Attention ! checker b en relation avec a
+	?plane1 <- (Plan (Name ?Nam1) (Width ?Width) (Length ?Len)(Orientation ?Ori))
+	?relation <- (Relationship (Feature1 ?Nam1)(Feature2 ?Nam2)(Relationship Perpendicular))
+	?plane2 <- (Plan (Name ?Nam2) (Width ?Width2) (Length ?Len2))
+	?machiningDirection <- ((Name ?Nam)(Orientation ?Ori))(FaceSide Face)
 =>
 	(printout t "Face Milling" ?Nam crlf)
-	(assert(Tool (Feature ?Nam)(MaxDiameter (- ?Dia 4))(MinLength ?Len)))
+	(assert(Tool (Feature ?Nam)(MinLength ?Len2))) ;;Condition sur MinLength -> on doit verifier que l'outil est assez long pour faire le plan d'a coté
 	(retract ?feature)
 )
+(defrule FaceMilling "Face Milling"  ;;;;; Attention ! checker b en relation avec a
+	?plane1 <- (Plan (Name ?Nam1) (Width ?Width) (Length ?Len)(Orientation ?Ori))
+	?machiningDirection <- ((Name ?Nam)(Orientation ?Ori))(FaceSide Face)
+=>
+	(printout t "Face Milling" ?Nam crlf)
+	(retract ?feature)
+)
+
 (defrule SideMilling "Side Milling"
-	?feature <- (Plan (Name ?Nam) (Width ?Len) (Length ?Len))
+	?plane1 <- (Plan (Name ?Nam) (Width ?Width) (Length ?Len)(Orientation ?Ori))
+	?machiningDirection <- ((Name ?Nam)(Orientation ?mdi)(FaceSide Side))
 =>
 	(printout t "Side Milling" ?Nam crlf)
 	(assert(Tool (Feature ?Nam)(MinLength ?Len)))
+	(retract ?feature)
+)
+;;-----Pocket------
+(defrule FaceMillingPocket "Face Milling Pocket"  
+	?plane1 <- (Plan (Name ?Nam) (Height ?Height)(Width ?Width) (Length ?Len)(Orientation ?Ori))
+	?machiningDirection <- ((Name ?Nam)(Orientation ?mdi)(FaceSide Face))
+=>
+	(printout t "Face Milling Pocket" ?Nam crlf)
+	(assert(Tool (Feature ?Nam)(MinLength ?Height)))
+	(retract ?feature)
+)
+(defrule SideMillingPocket "Side Milling Side"  
+	?plane1 <- (Plan (Name ?Nam) (Height ?Height)(Width ?Width) (Length ?Len)(Orientation ?Ori))
+	?machiningDirection <- ((Name ?Nam)(Orientation ?mdi)(FaceSide Side))
+=>
+	(printout t "Side Milling Pocket" ?Nam crlf)
+	(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté
 	(retract ?feature)
 )
