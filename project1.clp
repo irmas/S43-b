@@ -42,11 +42,11 @@
 (deftemplate MachiningDirection "Determine direction of machining"
 	(slot Name (type SYMBOL) (default none))
 	(slot Orientation (type INTEGER))
+	(slot FaceSide (type SYMBOL) (allowed-symbols Face Side NA) (default NA))
 )
 
 (defrule Init "Rule which triggers with the no-fact fact"
 (initial-fact)
-
 ;;(assert(Plan (Name P1)(Length 100.0)(Width 50.0)(Orientation 3)))
 (assert(Plan (Name P2)(Length 50.0)(Width 50.0)(SideOrientation 3)))
 (assert(Plan (Name P3)(Length 50.0)(Width 20.0)(SideOrientation 2)))
@@ -83,7 +83,7 @@
 (assert(Hole (Name H4)(Diameter 6.0)(Depth 47.0)(Ftype Through)(SideOrientation 3)))
 (assert(Hole (Name H5)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(SideOrientation -1)))
 (assert(Hole (Name H6)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(SideOrientation -1)))
-
+)
 ;; ---------- Step 2 ----------
 
 (defrule Hole "Rules to implement is the feature is a hole"
@@ -104,13 +104,14 @@
 	?plane <- (Plane (Name ?Nam) (Orientation ?Ori))
 	?relation <- (not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
 =>
-	(assert(MachiningDirection (Name ?Nam)(Direction 1)))	
-	(assert(MachiningDirection (Name ?Nam)(Direction 2)))	
-	(assert(MachiningDirection (Name ?Nam)(Direction 3)))	
-	(assert(MachiningDirection (Name ?Nam)(Direction -1)))	
-	(assert(MachiningDirection (Name ?Nam)(Direction -2)))	
-	(assert(MachiningDirection (Name ?Nam)(Direction -3)))	
-	(retract(MachiningDirection (Name ?Nam)(Direction *(?Ori -1))))	
+	(assert(MachiningDirection (Name ?Nam)(Direction ?Ori)(FaceSide Face))	
+	(assert(MachiningDirection (Name ?Nam)(Direction 1)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Direction 2)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Direction 3)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Direction -1)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Direction -2)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Direction -3)(FaceSide Side)))	
+	(retract(MachiningDirection (Name ?Nam)(Direction *(?Ori -1))(FaceSide Side)))	
 )
 
 (defrule perpendicularPlanes "Machining direction for perpendicular planes"
@@ -118,33 +119,32 @@
 	?plane2 <- (Plane (Name ?Nam2) (Length ?Len2) (Width ?Wid2) (Orientation ?Ori2))	
 	?relation <- (Relationship (Feature1 ?Nam1) (Feature2 ?Nam2) (Relation Perpendicular))
 =>
-	(if (>((* ?Len1 ?Wid1) (* ?Len2 ?Wid2)))
-		((printout t "Direction of machining: " ?Ori1 crlf)
-		(assert(MachiningDirection (Name ?Nam1)(Direction ?Ori1))))
-		((printout t "Direction of machining: " ?Ori2 crlf)
-		(assert(MachiningDirection (Name ?Nam2)(Direction ?Ori2))))
+	(cond (>((* ?Len1 ?Wid1) (* ?Len2 ?Wid2))) ((printout t "Direction of machining: " ?Ori1 crlf) (assert(MachiningDirection (Name ?Nam1)(Direction ?Ori1))))
+		(t ((printout t "Direction of machining: " ?Ori2 crlf) (assert(MachiningDirection (Name ?Nam2)(Direction ?Ori2)))))
 	)
-
 )
 
-(defrule perpendicularPlanes "Machining direction for contact planes" ;;need  to include "machined seperatly" feature
+(defrule contactPlane "Machining direction for contact planes" ;;need  to include "machined seperatly" feature
 	?plane1 <- (Plane (Name ?Nam1) (Length ?Len1) (Width ?Wid1) (Orientation ?Ori1))
 	?plane2 <- (Plane (Name ?Nam2) (Length ?Len2) (Width ?Wid2) (Orientation ?Ori2))	
 	?relation <- (Relationship (Feature1 ?Nam1) (Feature2 ?Nam2) (Relation Contact))
 =>
-	(printout t "Direction of machining: " ?Ori1 crlf)
- 	(assert(MachiningDirection (Name ?Nam1)(Direction ?Ori1)))
- 	(assert(MachiningDirection (Name ?Nam2)(Direction ?Ori2)))
+	(printout t "Direction of machining of " ?Nam1 ": " ?Ori1 crlf)
+	(printout t "Direction of machining of " ?Nam2 ": " ?Ori2 crlf)
+ 	(assert(MachiningDirection (Name ?Nam1)(Direction ?Ori1)(FaceSide Face)))
+ 	(assert(MachiningDirection (Name ?Nam2)(Direction ?Ori2)(FaceSide Face)))
 
 )
 
-(defrule perpendicularPlanes "Machining direction for bottom rounded slot/pocket" ;;need  to include "machined seperatly" feature
-	?slot <- (Plane (Name ?Nam) (Ftype Through) (Bottom Round) (Orientation ?Ori))
+(defrule Pocket "Machining direction for slot/pocket" 
+	?slot <- (Plane (Name ?Nam) (Ftype ?Ft) (Bottom ?Bot) (BottomOrientation ?BotOri) (SideOrientation ?SidOri))
 =>
-	(printout t "Direction of machining: " ?Ori1 " or: " ? crlf)
- 	(assert(MachiningDirection (Name ?Nam1)(Direction ?Ori1)))
- 	(assert(MachiningDirection (Name ?Nam2)(Direction ?Ori2)))
-
+	(cond (and (= ?Ft Through) (= ?Bot Round)) ((printout t "Direction of machining: " ?BotOri " or: " ?SidOri " or: " (* ?SidOri -1) crlf)
+		(assert(MachiningDirection (Name ?Nam)(Direction ?BotOri)(FaceSide Face)))
+ 		(assert(MachiningDirection (Name ?Nam)(Direction ?SidOri)(FaceSide Side)))
+ 		(assert(MachiningDirection (Name ?Nam)(Direction (* ?SidOri -1))(FaceSide Side))))
+		(t ((printout t "Direction of machining: " ?BotOri crlf) (assert(MachiningDirection (Name ?Nam)(Direction ?BotOri)(FaceSide Face)))))
+	)
 )
 
 ;;-----Step 3------
