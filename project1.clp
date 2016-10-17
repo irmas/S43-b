@@ -30,19 +30,25 @@
 (deftemplate Relationship "Definition of the relationships"
 	(slot Feature1 (type SYMBOL) (default none))
 	(slot Feature2 (type SYMBOL) (default none))
-	(slot Relation (type SYMBOL) (allowed-symbols Contact Perpendicular Start_in Lead_to Coaxial Cross) (default none))
+	(slot Relation (type SYMBOL) (allowed-symbols Contact Perpendicular Start_in Lead_to Coaxial Cross)(default None))
 )
 (deftemplate Tool "Definition of Tool"
-	(slot Feature (type SYMBOL) (default none)) ;; H1, H2 on associe un outil à un trou / plan
-	(slot MinDiameter (type FLOAT) (default 0.0))
-	(slot MaxDiameter (type FLOAT) (default 1000.0))
-	(slot MinLength (type FLOAT) (default 0.0))
+	(slot Name (type SYMBOL) (default None)) ;; H1, H2 on associe un outil à un trou / plan
+	(slot Type (type SYMBOL) (allowed-symbols DrillBit Mill)(default None))
+	(slot Diameter (type FLOAT) (default None))
+	(slot Length (type FLOAT) (default None))
 )
+;;(deftemplate Tool "Definition of Tool"
+;;	(slot Feature (type SYMBOL) (default none)) ;; H1, H2 on associe un outil à un trou / plan
+;;	(slot MinDiameter (type FLOAT) (default 0.0))
+;;	(slot MaxDiameter (type FLOAT) (default 1000.0))
+;;	(slot MinLength (type FLOAT) (default 0.0))
+;;)
 
 (deftemplate MachiningDirection "Determine direction of machining"
-	(slot Name (type SYMBOL) (default none))
+	(slot Name (type SYMBOL) (default None))
 	(slot Orientation (type INTEGER))
-	(slot FaceSide (type SYMBOL) (allowed-symbols Face Side NA) (default NA))
+	(slot FaceSide (type SYMBOL) (allowed-symbols Face Side NA)(default NA))
 )
 
 (defrule Init "Rule which triggers with the no-fact fact"
@@ -66,7 +72,7 @@
 ;;(assert(Plan (Name P15)(Length 50.0)(Width 20.0)(Orientation -2)))
 ;;(assert(Plan (Name P16)(Length 40.0)(Width 10.0)(Orientation -1)))
 ;;(assert(Plan (Name P17)(Length 40.0)(Width 10.0)(Orientation -1)))
-(assert(Slot (Name S1)(Length 50.0)(Height 5.0)(Width 6.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(NormalOrientation 3)(SideOrientation 1))
+(assert(Slot (Name S1)(Length 50.0)(Height 5.0)(Width 6.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(NormalOrientation 3)(SideOrientation 1)))
 (assert(Slot (Name S2)(Length 50.0)(Height 5.0)(Width 6.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(NormalOrientation 3)(SideOrientation 1)))
 (assert(Slot (Name S3)(Length 40.0)(Height 20.0)(Width 20.0)(Inverse NonInverse)(Ftype NonThrough)(Bottom Square)(NormalOrientation 3)(SideOrientation 1)))
 (assert(Slot (Name S4)(Length 40.0)(Height 30.0)(Width 28.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(NormalOrientation -3)(SideOrientation 3)))
@@ -83,6 +89,18 @@
 (assert(Hole (Name H4)(Diameter 6.0)(Depth 47.0)(Ftype Through)(SideOrientation 3)))
 (assert(Hole (Name H5)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(SideOrientation -1)))
 (assert(Hole (Name H6)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(SideOrientation -1)))
+
+
+(assert(Tool (Name DB1)(Type DrillBit)(Diameter 6.0)(Length 10.0)))
+(assert(Tool (Name DB2)(Type DrillBit)(Diameter 12.0)(Length 80.0)))
+(assert(Tool (Name DB3)(Type DrillBit)(Diameter 10.0)(Length 60.0)))
+(assert(Tool (Name DB4)(Type DrillBit)(Diameter 20.0)(Length 70.0)))
+(assert(Tool (Name DB5)(Type DrillBit)(Diameter 6.0)(Length 80.0)))
+(assert(Tool (Name Mill1)(Type Mill)(Diameter 15.0)(Length 40.0)))
+(assert(Tool (Name Mill2)(Type Mill)(Diameter 20.0)(Length 80.0)))
+(assert(Tool (Name Mill3)(Type Mill)(Diameter 4.0)(Length 2.0)))
+(assert(Tool (Name Mill4)(Type Mill)(Diameter 20.0)(Length 3.0)))
+
 )
 ;; ---------- Step 2 ----------
 
@@ -151,32 +169,41 @@
 ;;-----Hole------
 (defrule deepDrilling "Deep drilling"
 	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype NonThrough) (Diameter ?Dia))
+	?tool <- (Tool (Name ?ToolName) (Type DrillBit) (Diameter ?Dia) (Length ?ToolLen))
 	(test(>=(/ ?Len ?Dia)2.0))
+	(test(<= ?Len ?ToolLen))
 =>
 	(printout t "Deep drilling " ?Nam crlf)
-	(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
+	;;(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
 	(retract ?feature)
 )
 (defrule Drilling "drilling normal"
 	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype NonThrough) (Diameter ?Dia))
+	?tool <- (Tool (Name ?ToolName) (Type DrillBit) (Diameter ?Dia) (Length ?ToolLen))
+	(test(<= ?Len ?ToolLen))
 	(test(<(/ ?Len ?Dia)2.0))
 =>
 	(printout t "drilling Normal" ?Nam crlf)
-	(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
+	;;(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
 	(retract ?feature)
 )
 (defrule Drilling "drilling normal Through"
 	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype Through) (Diameter ?Dia))
+	?tool <- (Tool (Name ?ToolName) (Type DrillBit) (Diameter ?Dia) (Length ?ToolLen))
+	(test(<= ?Len ?ToolLen))
 =>
 	(printout t "drilling Normal" ?Nam crlf)
-	(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
+	;;(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
 	(retract ?feature)
 )
 (defrule MillingHole "Milling Hole"
 	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype Through) (Diameter ?Dia))
+	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
+	(test(<= ?Len ?ToolLen))
+	(test(<= ?ToolDia (- ?Dia 4)))
 =>
 	(printout t "Milling Hole" ?Nam crlf)
-	(assert(Tool (Feature ?Nam)(MaxDiameter (- ?Dia 4))(MinLength ?Len)))
+	;;(assert(Tool (Feature ?Nam)(MaxDiameter (- ?Dia 4))(MinLength ?Len)))
 	(modify ?feature (Diameter (- ?Dia 2)))
 )
 
@@ -186,9 +213,11 @@
 	?relation <- (Relationship (Feature1 ?Nam1)(Feature2 ?Nam2)(Relationship Perpendicular))
 	?plane2 <- (Plan (Name ?Nam2) (Width ?Width2) (Length ?Len2))
 	?machiningDirection <- ((Name ?Nam)(Orientation ?Ori))(FaceSide Face)
+	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
+	(test(<= ?Len2 ?ToolLen))
 =>
 	(printout t "Face Milling" ?Nam crlf)
-	(assert(Tool (Feature ?Nam)(MinLength ?Len2))) ;;Condition sur MinLength -> on doit verifier que l'outil est assez long pour faire le plan d'a coté
+	;;(assert(Tool (Feature ?Nam)(MinLength ?Len2))) ;;Condition sur MinLength -> on doit verifier que l'outil est assez long pour faire le plan d'a coté
 	(retract ?feature)
 )
 (defrule FaceMilling "Face Milling"  ;;;;; Attention ! checker b en relation avec a
@@ -202,25 +231,31 @@
 (defrule SideMilling "Side Milling"
 	?plane1 <- (Plan (Name ?Nam) (Width ?Width) (Length ?Len)(Orientation ?Ori))
 	?machiningDirection <- ((Name ?Nam)(Orientation ?mdi)(FaceSide Side))
+	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
+	(test(<= ?Len ?ToolLen))
 =>
 	(printout t "Side Milling" ?Nam crlf)
-	(assert(Tool (Feature ?Nam)(MinLength ?Len)))
+	;;(assert(Tool (Feature ?Nam)(MinLength ?Len)))
 	(retract ?feature)
 )
 ;;-----Pocket------
 (defrule FaceMillingPocket "Face Milling Pocket"  
-	?plane1 <- (Plan (Name ?Nam) (Height ?Height)(Width ?Width) (Length ?Len)(Orientation ?Ori))
+	?plane1 <- (Slot (Name ?Nam) (Height ?Height)(Width ?Width) (Length ?Len)(Orientation ?Ori))
 	?machiningDirection <- ((Name ?Nam)(Orientation ?mdi)(FaceSide Face))
+	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
+	(test(<= ?Height ?ToolLen))
 =>
 	(printout t "Face Milling Pocket" ?Nam crlf)
-	(assert(Tool (Feature ?Nam)(MinLength ?Height)))
+	;;(assert(Tool (Feature ?Nam)(MinLength ?Height)))
 	(retract ?feature)
 )
 (defrule SideMillingPocket "Side Milling Side"  
-	?plane1 <- (Plan (Name ?Nam) (Height ?Height)(Width ?Width) (Length ?Len)(Orientation ?Ori))
+	?plane1 <- (Slot (Name ?Nam) (Height ?Height)(Width ?Width) (Length ?Len)(Orientation ?Ori))
 	?machiningDirection <- ((Name ?Nam)(Orientation ?mdi)(FaceSide Side))
+	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
+	(test(<= ?Height ?ToolLen))
 =>
 	(printout t "Side Milling Pocket" ?Nam crlf)
-	(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
+	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
 	(retract ?feature)
 )
