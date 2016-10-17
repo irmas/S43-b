@@ -221,6 +221,6 @@
 	?machiningDirection <- ((Name ?Nam)(Orientation ?mdi)(FaceSide Side))
 =>
 	(printout t "Side Milling Pocket" ?Nam crlf)
-	(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté
+	(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
 	(retract ?feature)
 )
