@@ -32,11 +32,12 @@
 	(slot Feature2 (type SYMBOL) (default none))
 	(slot Relation (type SYMBOL) (allowed-symbols Contact Perpendicular Start_in Lead_to Coaxial Cross NA)(default NA))
 )
+
 (deftemplate Tool "Definition of Tool"
-	(slot Name (type SYMBOL) (default None)) ;; H1, H2 on associe un outil à un trou / plan
-	(slot Type (type SYMBOL) (allowed-symbols DrillBit Mill)(default None))
-	(slot Diameter (type FLOAT) (default None))
-	(slot Length (type FLOAT) (default None))
+	(slot Name (type SYMBOL) (default none)) ;; H1, H2 on associe un outil à un trou / plan
+	(slot Type (type SYMBOL) (allowed-symbols DrillBit Mill))
+	(slot Diameter (type FLOAT) (default 0.0))
+	(slot Length (type FLOAT) (default 0.0))
 )
 ;;(deftemplate Tool "Definition of Tool"
 ;;	(slot Feature (type SYMBOL) (default none)) ;; H1, H2 on associe un outil à un trou / plan
@@ -46,7 +47,7 @@
 ;;)
 
 (deftemplate MachiningDirection "Determine direction of machining"
-	(slot Name (type SYMBOL) (default None))
+	(slot Name (type SYMBOL) (default none))
 	(slot Orientation (type INTEGER))
 	(slot FaceSide (type SYMBOL) (allowed-symbols Face Side NA)(default NA))
 )
@@ -127,7 +128,7 @@
 	(assert(MachiningDirection (Name ?Nam)(Orientation -1)(FaceSide Side)))	
 	(assert(MachiningDirection (Name ?Nam)(Orientation -2)(FaceSide Side)))	
 	(assert(MachiningDirection (Name ?Nam)(Orientation -3)(FaceSide Side)))	
-	(retract(MachiningDirection (Name ?Nam)(Orientation *(?Ori -1))(FaceSide Side)))	
+	(retract(MachiningDirection (Name ?Nam)(Orientation (* ?Ori -1))(FaceSide Side)))	
 )
 
 (defrule perpendicularPlanes12 "Machining direction for perpendicular planes"
@@ -183,24 +184,25 @@
 (defrule deepDrilling "Deep drilling"
 	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype NonThrough) (Diameter ?Dia))
 	?tool <- (Tool (Name ?ToolName) (Type DrillBit) (Diameter ?Dia) (Length ?ToolLen))
-	(test(>=(/ ?Len ?Dia)2.0))
-	(test(<= ?Len ?ToolLen))
+	(test (>= (/ ?Len ?Dia) 2.0))
+	(test (<= ?Len ?ToolLen))
 =>
 	(printout t "Deep drilling " ?Nam crlf)
-	;;(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
 	(retract ?feature)
 )
-(defrule Drilling "drilling normal"
+
+(defrule normalDrilling "drilling normal"
 	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype NonThrough) (Diameter ?Dia))
 	?tool <- (Tool (Name ?ToolName) (Type DrillBit) (Diameter ?Dia) (Length ?ToolLen))
-	(test(<= ?Len ?ToolLen))
-	(test(<(/ ?Len ?Dia)2.0))
+	(test (<= ?Len ?ToolLen))
+	(test (<(/ ?Len ?Dia)2.0))
 =>
 	(printout t "drilling Normal" ?Nam crlf)
 	;;(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
 	(retract ?feature)
 )
-(defrule Drilling "drilling normal Through"
+
+(defrule normalThroughDrilling "drilling normal Through"
 	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype Through) (Diameter ?Dia))
 	?tool <- (Tool (Name ?ToolName) (Type DrillBit) (Diameter ?Dia) (Length ?ToolLen))
 	(test(<= ?Len ?ToolLen))
@@ -222,10 +224,10 @@
 
 ;;-----Face------
 (defrule FaceMillingWithPerpendicular "Face Milling"  ;;;;; Attention ! checker b en relation avec a
-	?plane1 <- (Plane (Name ?Nam1) (Width ?Width) (Length ?Len)(Orientation ?Ori))
-	?relation <- (Relationship (Feature1 ?Nam1)(Feature2 ?Nam2)(Relationship Perpendicular))
+	?plane1 <- (Plane (Name ?Nam1) (Width ?Width) (Length ?Len) (Orientation ?Ori))
+	?relation <- (Relationship (Feature1 ?Nam1) (Feature2 ?Nam2) (Relation Perpendicular))
 	?plane2 <- (Plane (Name ?Nam2) (Width ?Width2) (Length ?Len2))
-	?machiningDirection <- ((Name ?Nam)(Orientation ?Ori))(FaceSide Face)
+	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?Ori) (FaceSide Face))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(<= ?Len2 ?ToolLen))
 =>
@@ -234,16 +236,16 @@
 	(retract ?feature)
 )
 (defrule FaceMilling "Face Milling"  ;;;;; Attention ! checker b en relation avec a
-	?plane1 <- (Plane (Name ?Nam1) (Width ?Width) (Length ?Len)(Orientation ?Ori))
-	?machiningDirection <- ((Name ?Nam)(Orientation ?Ori))(FaceSide Face)
+	?feature <- (Plane (Name ?Nam1) (Width ?Width) (Length ?Len) (Orientation ?Ori))
+	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?Ori)) (FaceSide Face)
 =>
 	(printout t "Face Milling" ?Nam crlf)
 	(retract ?feature)
 )
 
 (defrule SideMilling "Side Milling"
-	?plane1 <- (Plane (Name ?Nam) (Width ?Width) (Length ?Len)(Orientation ?Ori))
-	?machiningDirection <- ((Name ?Nam)(Orientation ?mdi)(FaceSide Side))
+	?feature <- (Plane (Name ?Nam) (Width ?Width) (Length ?Len) (Orientation ?Ori))
+	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Side))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(<= ?Len ?ToolLen))
 =>
@@ -253,8 +255,8 @@
 )
 ;;-----Pocket------
 (defrule FaceMillingPocket "Face Milling Pocket"  
-	?plane1 <- (Slot (Name ?Nam) (Height ?Height)(Width ?Width) (Length ?Len)(Orientation ?Ori))
-	?machiningDirection <- ((Name ?Nam)(Orientation ?mdi)(FaceSide Face))
+	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Length ?Len) (Orientation ?Ori))
+	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Face))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(<= ?Height ?ToolLen))
 =>
@@ -263,8 +265,8 @@
 	(retract ?feature)
 )
 (defrule SideMillingPocket "Side Milling Side"  
-	?plane1 <- (Slot (Name ?Nam) (Height ?Height)(Width ?Width) (Length ?Len)(Orientation ?Ori))
-	?machiningDirection <- ((Name ?Nam)(Orientation ?mdi)(FaceSide Side))
+	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Length ?Len) (Orientation ?Ori))
+	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Side))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(<= ?Height ?ToolLen))
 =>
