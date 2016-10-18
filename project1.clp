@@ -128,7 +128,9 @@
 	(assert(MachiningDirection (Name ?Nam)(Orientation -1)(FaceSide Side)))	
 	(assert(MachiningDirection (Name ?Nam)(Orientation -2)(FaceSide Side)))	
 	(assert(MachiningDirection (Name ?Nam)(Orientation -3)(FaceSide Side)))	
-	(retract(MachiningDirection (Name ?Nam)(Orientation (* ?Ori -1))(FaceSide Side)))	
+	;;Commente pour qu'il arrive au bout
+	;;(retract(MachiningDirection (Name ?Nam)(Orientation (* ?Ori -1))(FaceSide Side)));; marche pas, les autres retracts sont basés sur du retract( ?feature), 
+	;; il faudrait peur être créer un ?OriginialMD<- blabla et retirer lui a la fin
 )
 
 (defrule perpendicularPlanes12 "Machining direction for perpendicular planes"
@@ -227,13 +229,13 @@
 	?plane1 <- (Plane (Name ?Nam1) (Width ?Width) (Length ?Len) (Orientation ?Ori))
 	?relation <- (Relationship (Feature1 ?Nam1) (Feature2 ?Nam2) (Relation Perpendicular))
 	?plane2 <- (Plane (Name ?Nam2) (Width ?Width2) (Length ?Len2))
-	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?Ori) (FaceSide Face))
+	?machiningDirection <- (MachiningDirection (Name ?Nam) (FaceSide Face)) ;;(Orientation ?Ori)
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(<= ?Len2 ?ToolLen))
 =>
 	(printout t "Face Milling" ?Nam crlf)
 	;;(assert(Tool (Feature ?Nam)(MinLength ?Len2))) ;;Condition sur MinLength -> on doit verifier que l'outil est assez long pour faire le plan d'a coté
-	(retract ?feature)
+	(retract ?plane1)
 )
 (defrule FaceMilling "Face Milling"  ;;;;; Attention ! checker b en relation avec a
 	?feature <- (Plane (Name ?Nam1) (Width ?Width) (Length ?Len) (Orientation ?Ori))
