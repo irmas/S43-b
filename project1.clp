@@ -100,6 +100,7 @@
 (assert(Tool (Name Mill2)(Type Mill)(Diameter 20.0)(Length 80.0)))
 (assert(Tool (Name Mill3)(Type Mill)(Diameter 4.0)(Length 2.0)))
 (assert(Tool (Name Mill4)(Type Mill)(Diameter 20.0)(Length 3.0)))
+(assert(Relationship (Feature1 )(Feature2 )(Relation ))
 )
 ;; ---------- Step 2 ----------
 
@@ -154,8 +155,8 @@
 )
 
 (defrule contactPlane "Machining direction for contact planes" ;;need  to include "machined seperatly" feature
-	?plane1 <- (Plane (Name ?Nam1) (Length ?Len1) (Width ?Wid1) (Orientation ?Ori1))
-	?plane2 <- (Plane (Name ?Nam2) (Length ?Len2) (Width ?Wid2) (Orientation ?Ori2))	
+	?plane1 <- (Plane (Name ?Nam1) (Orientation ?Ori1))
+	?plane2 <- (Plane (Name ?Nam2) (Orientation ?Ori2))	
 	?relation <- (Relationship (Feature1 ?Nam1) (Feature2 ?Nam2) (Relation Contact))
 =>
 	(printout t "Direction of machining of " ?Nam1 ": " ?Ori1 crlf)
@@ -166,7 +167,7 @@
 )
 
 (defrule Pocket "Machining direction for slot/pocket" 
-	?slot <- (Slot (Name ?Nam) (Ftype ?Ft) (Bottom ?Bot) (BottomOrientation ?BotOri) (SideOrientation ?SidOri))
+	?slot <- (Slot (Name ?Nam) (BottomOrientation ?BotOri))
 =>
 	(printout t "Direction of machining: " ?BotOri crlf)
 	(assert(MachiningDirection (Name ?Nam)(Orientation ?BotOri)(FaceSide Face)))
@@ -257,7 +258,7 @@
 )
 ;;-----Pocket------
 (defrule FaceMillingPocket "Face Milling Pocket"  
-	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Length ?Len) (Orientation ?Ori))
+	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Length ?Len))
 	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Face))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(<= ?Height ?ToolLen))
@@ -266,11 +267,12 @@
 	;;(assert(Tool (Feature ?Nam)(MinLength ?Height)))
 	(retract ?feature)
 )
+
 (defrule SideMillingPocket "Side Milling Side"  
-	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Length ?Len) (Orientation ?Ori))
+	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Length ?Len))
 	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Side))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
-	(test(<= ?Height ?ToolLen))
+	(test(>= ?Height ?ToolLen))
 =>
 	(printout t "Side Milling Pocket" ?Nam crlf)
 	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
