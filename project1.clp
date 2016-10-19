@@ -100,7 +100,7 @@
 (assert(Tool (Name Mill2)(Type Mill)(Diameter 20.0)(Length 80.0)))
 (assert(Tool (Name Mill3)(Type Mill)(Diameter 4.0)(Length 2.0)))
 (assert(Tool (Name Mill4)(Type Mill)(Diameter 20.0)(Length 3.0)))
-(assert(Relationship (Feature1 )(Feature2 )(Relation ))
+;;(assert(Relationship (Feature1 )(Feature2 )(Relation ))
 )
 ;; ---------- Step 2 ----------
 
