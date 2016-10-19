@@ -100,29 +100,29 @@
 (assert(Tool (Name Mill2)(Type Mill)(Diameter 20.0)(Length 80.0)))
 (assert(Tool (Name Mill3)(Type Mill)(Diameter 4.0)(Length 2.0)))
 (assert(Tool (Name Mill4)(Type Mill)(Diameter 20.0)(Length 3.0)))
-(assert(Relationship (Feature1 )(Feature2 )(Relation ))
+;;(assert(Relationship (Feature1 )(Feature2 )(Relation )))
 )
 ;; ---------- Step 2 ----------
 
 (defrule Hole "Rules to implement is the feature is a hole"
 	?hole <- (Hole (Name ?Nam) (Orientation ?Ori))
 =>
-	(printout t "Direction of machining: " ?Ori crlf)
-	(assert(MachiningDirection (Name ?Nam)(Orientation ?Ori)))
+	(printout t "Direction of machining: of hole" ?Ori crlf)
+	(assert(MachiningDirection (Name ?Nam)(Orientation ?Ori)(FaceSide NA)))
 )
 
 (defrule throughHole "Rules to implement is the feature is a Throughout hole"
 	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
 =>
-	(printout t "Direction of machining: " ?Ori "or: -" ?Ori crlf)
+	(printout t "Direction of machining of hole: " ?Ori "or: -" ?Ori crlf)
 	(assert(MachiningDirection (Name ?Nam)(Orientation (* ?Ori -1))))
 )
 
 (defrule faceSideMilling "Machining direction if no interactions bt planes"
 	?plane <- (Plane (Name ?Nam) (Orientation ?Ori))
-	(not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
+	;;(not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
 =>
-	(assert(MachiningDirection (Name ?Nam)(Orientation ?Ori)(FaceSide Face)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation ?Ori)(FaceSide Face)))
 	(assert(MachiningDirection (Name ?Nam)(Orientation 1)(FaceSide Side)))	
 	(assert(MachiningDirection (Name ?Nam)(Orientation 2)(FaceSide Side)))	
 	(assert(MachiningDirection (Name ?Nam)(Orientation 3)(FaceSide Side)))	
@@ -131,6 +131,7 @@
 	(assert(MachiningDirection (Name ?Nam)(Orientation -3)(FaceSide Side)))	
 	;;Commente pour qu'il arrive au bout
 	;;(retract(MachiningDirection (Name ?Nam)(Orientation (* ?Ori -1))(FaceSide Side)));; marche pas, les autres retracts sont basés sur du retract( ?feature), 
+	;;(retract(MachiningDirection (Name ?Nam)(Orientation ?Ori)(FaceSide Side)));; marche pas, les autres retracts sont basés sur du retract( ?feature), 
 	;; il faudrait peur être créer un ?OriginialMD<- blabla et retirer lui a la fin
 )
 
@@ -201,6 +202,7 @@
 	(test (<(/ ?Len ?Dia)2.0))
 =>
 	(printout t "drilling Normal" ?Nam crlf)
+;;	(assert(MachiningDirection (Name ?Nam)(Orientation ?Ori)(FaceSide NA)))
 	;;(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
 	(retract ?feature)
 )
@@ -239,16 +241,16 @@
 	(retract ?plane1)
 )
 (defrule FaceMilling "Face Milling"  ;;;;; Attention ! checker b en relation avec a
-	?feature <- (Plane (Name ?Nam1) (Width ?Width) (Length ?Len) (Orientation ?Ori))
-	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?Ori)) (FaceSide Face)
+	?feature <- (Plane (Name ?Nam) (Width ?Width) (Length ?Len) (Orientation ?Ori))
+	?machiningDirection <- (MachiningDirection (Name ?mdName) (Orientation ?mdOri)) (FaceSide Face)
 =>
 	(printout t "Face Milling" ?Nam crlf)
 	(retract ?feature)
 )
 
 (defrule SideMilling "Side Milling"
-	?feature <- (Plane (Name ?Nam) (Width ?Width) (Length ?Len) (Orientation ?Ori))
-	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Side))
+	?feature <- (Plane (Name ?Nam) (Length ?Len) (Orientation ?Ori)) ;; achtung, Len est bien necessaire
+	?machiningDirection <- (MachiningDirection (FaceSide Side))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(<= ?Len ?ToolLen))
 =>
