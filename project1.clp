@@ -372,7 +372,20 @@
 
 (defrule SideMillingPocket "Side Milling Side"  
 (declare (salience 892))
-	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Length ?Len))
+	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Inverse NonInverse) (Length ?Len))
+	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Side))
+	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
+	(test(>= ?Height ?ToolLen))
+	(test(>= ?Width ?ToolDia))
+=>
+	(printout t "Side Milling Pocket" ?Nam crlf)
+	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
+	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
+	(retract ?feature)
+)
+(defrule SideMillingPocket "Side Milling Side"  
+(declare (salience 892))
+	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Inverse Inverse) (Length ?Len))
 	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Side))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(>= ?Height ?ToolLen))
