@@ -57,6 +57,11 @@
 	(slot MachineName (type SYMBOL) (default none))
 )
 
+(deftemplate FeatureMachinedWith "Determine direction of machining"
+	(slot FeatureName (type SYMBOL) (default none))
+	(slot ToolName (type SYMBOL) (default none))
+)
+
 (defrule Init "Rule which triggers with the no-fact fact"
 (initial-fact)
 =>
@@ -250,6 +255,7 @@
 	(test (<= ?Len ?ToolLen))
 =>
 	(printout t "Deep drilling " ?Nam crlf)
+	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
 	(retract ?feature)
 )
 
@@ -260,6 +266,7 @@
 	(test (<(/ ?Len ?Dia)2.0))
 =>
 	(printout t "drilling Normal" ?Nam crlf)
+	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
 ;;	(assert(MachiningDirection (Name ?Nam)(Orientation ?Ori)(FaceSide NA)))
 	;;(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
 	(retract ?feature)
@@ -271,6 +278,7 @@
 	(test(<= ?Len ?ToolLen))
 =>
 	(printout t "drilling Normal" ?Nam crlf)
+	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
 	;;(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
 	(retract ?feature)
 )
@@ -281,6 +289,7 @@
 	(test(<= ?ToolDia (- ?Dia 4)))
 =>
 	(printout t "Milling Hole" ?Nam crlf)
+	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
 	;;(assert(Tool (Feature ?Nam)(MaxDiameter (- ?Dia 4))(MinLength ?Len)))
 	(modify ?feature (Diameter (- ?Dia 2)))
 )
@@ -295,14 +304,17 @@
 	(test(<= ?Len2 ?ToolLen))
 =>
 	(printout t "Face Milling" ?Nam crlf)
+	(assert(FeatureMachinedWith (FeatureName ?Nam1)(ToolName ?ToolName)))
 	;;(assert(Tool (Feature ?Nam)(MinLength ?Len2))) ;;Condition sur MinLength -> on doit verifier que l'outil est assez long pour faire le plan d'a coté
 	(retract ?plane1)
 )
 (defrule FaceMilling "Face Milling"  ;;;;; Attention ! checker b en relation avec a
 	?feature <- (Plane (Name ?Nam) (Width ?Width) (Length ?Len) (Orientation ?Ori))
 	?machiningDirection <- (MachiningDirection (Name ?mdName) (Orientation ?mdOri)) (FaceSide Face)
+	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 =>
 	(printout t "Face Milling" ?Nam crlf)
+	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
 	(retract ?feature)
 )
 
@@ -313,6 +325,7 @@
 	(test(<= ?Len ?ToolLen))
 =>
 	(printout t "Side Milling" ?Nam crlf)
+	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
 	;;(assert(Tool (Feature ?Nam)(MinLength ?Len)))
 	(retract ?feature)
 )
@@ -324,6 +337,7 @@
 	(test(<= ?Height ?ToolLen))
 =>
 	(printout t "Face Milling Pocket" ?Nam crlf)
+	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
 	;;(assert(Tool (Feature ?Nam)(MinLength ?Height)))
 	(retract ?feature)
 )
@@ -335,6 +349,7 @@
 	(test(>= ?Height ?ToolLen))
 =>
 	(printout t "Side Milling Pocket" ?Nam crlf)
+	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
 	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
 	(retract ?feature)
 )
