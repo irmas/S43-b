@@ -46,12 +46,6 @@
 	(slot Orientation2 (type INTEGER))
 	(slot Orientation3 (type INTEGER))
 )
-;;(deftemplate Tool "Definition of Tool"
-;;	(slot Feature (type SYMBOL) (default none)) ;; H1, H2 on associe un outil à un trou / plan
-;;	(slot MinDiameter (type FLOAT) (default 0.0))
-;;	(slot MaxDiameter (type FLOAT) (default 1000.0))
-;;	(slot MinLength (type FLOAT) (default 0.0))
-;;)
 
 (deftemplate MachiningDirection "Determine direction of machining"
 	(slot Name (type SYMBOL) (default none))
@@ -70,7 +64,8 @@
 (assert(Plane (Name P2)(Length 50.0)(Width 50.0)(Orientation 3)))
 (assert(Plane (Name P3)(Length 50.0)(Width 20.0)(Orientation 2)))
 (assert(Plane (Name P4)(Length 50.0)(Width 20.0)(Orientation -2)))
-;;(assert(Plane (Name P3)(Length 150.0)(Width 40.0)(Orientation 2)))
+(assert(Plane (Name P5)(Length 40.0)(Width 10.0)(Orientation -1)))
+(assert(Plane (Name P6)(Length 40.0)(Width 10.0)(Orientation -1)))
 ;;(assert(Plane (Name P4)(Length 150.0)(Width 40.0)(Orientation -2)))
 ;;(assert(Plane (Name P5)(Length 50.0)(Width 20.0)(Orientation 2)))
 ;;(assert(Plane (Name P6)(Length 50.0)(Width 20.0)(Orientation -2)))
@@ -111,8 +106,8 @@
 (assert(Tool (Name Mill2)(Type Mill)(Diameter 20.0)(Length 80.0)))
 (assert(Tool (Name Mill3)(Type Mill)(Diameter 4.0)(Length 2.0)))
 (assert(Tool (Name Mill4)(Type Mill)(Diameter 20.0)(Length 3.0)))
-;;(assert(Relationship (Feature1 )(Feature2 )(Relation )))
-(assert(Machine (Name M1)(Orientation1 -1)(Orientation2 2)(Orientation3 2)))
+(assert(Relationship (Feature1 P5)(Feature2 P6)(Relation Contact)))
+(assert(Machine (Name M1)(Orientation1 -1)(Orientation2 2)(Orientation3 -2)))
 (assert(Machine (Name M2)(Orientation1 1)(Orientation2 2)(Orientation3 -2)))
 (assert(Machine (Name M3)(Orientation1 2)(Orientation2 3)(Orientation3 3)))
 (assert(Machine (Name M4)(Orientation1 -1)(Orientation2 1)(Orientation3 2)))
@@ -133,21 +128,70 @@
 	(assert(MachiningDirection (Name ?Nam)(Orientation (* ?Ori -1))))
 )
 
-(defrule faceSideMilling "Machining direction if no interactions bt planes"
-	?plane <- (Plane (Name ?Nam) (Orientation ?Ori))
-	;;(not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
+(defrule faceSideMilling1 "Machining direction if no interactions bt planes"
+	?plane <- (Plane (Name ?Nam) (Orientation 1))
+	(not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
 =>
-	(assert(MachiningDirection (Name ?Nam)(Orientation ?Ori)(FaceSide Face)))
-	(assert(MachiningDirection (Name ?Nam)(Orientation 1)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation 1)(FaceSide Face)))
 	(assert(MachiningDirection (Name ?Nam)(Orientation 2)(FaceSide Side)))	
-	(assert(MachiningDirection (Name ?Nam)(Orientation 3)(FaceSide Side)))	
-	(assert(MachiningDirection (Name ?Nam)(Orientation -1)(FaceSide Side)))	
 	(assert(MachiningDirection (Name ?Nam)(Orientation -2)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation 3)(FaceSide Side)))	
 	(assert(MachiningDirection (Name ?Nam)(Orientation -3)(FaceSide Side)))	
-	;;Commente pour qu'il arrive au bout
-	;;(retract(MachiningDirection (Name ?Nam)(Orientation (* ?Ori -1))(FaceSide Side)));; marche pas, les autres retracts sont basés sur du retract( ?feature), 
-	;;(retract(MachiningDirection (Name ?Nam)(Orientation ?Ori)(FaceSide Side)));; marche pas, les autres retracts sont basés sur du retract( ?feature), 
-	;; il faudrait peur être créer un ?OriginialMD<- blabla et retirer lui a la fin
+)
+
+(defrule faceSideMilling2 "Machining direction if no interactions bt planes"
+	?plane <- (Plane (Name ?Nam) (Orientation 2))
+	(not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
+=>
+	(assert(MachiningDirection (Name ?Nam)(Orientation 2)(FaceSide Face)))
+	(assert(MachiningDirection (Name ?Nam)(Orientation 1)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation -1)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation 3)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation -3)(FaceSide Side)))	
+)
+
+(defrule faceSideMilling3 "Machining direction if no interactions bt planes"
+	?plane <- (Plane (Name ?Nam) (Orientation 3))
+	(not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
+=>
+	(assert(MachiningDirection (Name ?Nam)(Orientation 3)(FaceSide Face)))
+	(assert(MachiningDirection (Name ?Nam)(Orientation 2)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation -2)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation 1)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation -1)(FaceSide Side)))	
+)
+
+(defrule faceSideMilling_1 "Machining direction if no interactions bt planes"
+	?plane <- (Plane (Name ?Nam) (Orientation -1))
+	(not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
+=>
+	(assert(MachiningDirection (Name ?Nam)(Orientation -1)(FaceSide Face)))
+	(assert(MachiningDirection (Name ?Nam)(Orientation 2)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation -2)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation 3)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation -3)(FaceSide Side)))	
+)
+
+(defrule faceSideMilling_2 "Machining direction if no interactions bt planes"
+	?plane <- (Plane (Name ?Nam) (Orientation -2))
+	(not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
+=>
+	(assert(MachiningDirection (Name ?Nam)(Orientation -2)(FaceSide Face)))
+	(assert(MachiningDirection (Name ?Nam)(Orientation 1)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation -1)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation 3)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation -3)(FaceSide Side)))	
+)
+
+(defrule faceSideMilling_3 "Machining direction if no interactions bt planes"
+	?plane <- (Plane (Name ?Nam) (Orientation -3))
+	(not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
+=>
+	(assert(MachiningDirection (Name ?Nam)(Orientation -3)(FaceSide Face)))
+	(assert(MachiningDirection (Name ?Nam)(Orientation 2)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation -2)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation 1)(FaceSide Side)))	
+	(assert(MachiningDirection (Name ?Nam)(Orientation -1)(FaceSide Side)))	
 )
 
 (defrule perpendicularPlanes12 "Machining direction for perpendicular planes"
@@ -179,7 +223,6 @@
 	(printout t "Direction of machining of " ?Nam2 ": " ?Ori2 crlf)
  	(assert(MachiningDirection (Name ?Nam1)(Orientation ?Ori1)(FaceSide Face)))
  	(assert(MachiningDirection (Name ?Nam2)(Orientation ?Ori2)(FaceSide Face)))
-
 )
 
 (defrule Pocket "Machining direction for slot/pocket" 
