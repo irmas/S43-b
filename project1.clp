@@ -63,8 +63,6 @@
 )
 
 (defrule Init "Rule which triggers with the no-fact fact"
-(declare (salience 1000))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
 (initial-fact)
 =>
 ;;(assert(Plane (Name P1)(Length 100.0)(Width 50.0)(Orientation 3)))
@@ -123,7 +121,6 @@
 
 (defrule Hole "Rules to implement is the feature is a hole"
 (declare (salience 1000))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
 	?hole <- (Hole (Name ?Nam) (Orientation ?Ori))
 =>
 	(printout t "Direction of machining: of hole" ?Ori crlf)
@@ -131,8 +128,7 @@
 )
 
 (defrule throughHole "Rules to implement is the feature is a Throughout hole"
-(declare (salience 1000))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 999))
 	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
 =>
 	(printout t "Direction of machining of hole: " ?Ori "or: -" ?Ori crlf)
@@ -140,9 +136,7 @@
 )
 
 (defrule faceSideMilling1 "Machining direction if no interactions bt planes"
-(declare (salience 1000))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 998))
 	?plane <- (Plane (Name ?Nam) (Orientation 1))
 	(not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
 =>
@@ -154,8 +148,7 @@
 )
 
 (defrule faceSideMilling2 "Machining direction if no interactions bt planes"
-(declare (salience 1000))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 997))
 	?plane <- (Plane (Name ?Nam) (Orientation 2))
 	(not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
 =>
@@ -167,8 +160,7 @@
 )
 
 (defrule faceSideMilling3 "Machining direction if no interactions bt planes"
-(declare (salience 1000))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 996))
 	?plane <- (Plane (Name ?Nam) (Orientation 3))
 	(not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
 =>
@@ -180,8 +172,7 @@
 )
 
 (defrule faceSideMilling_1 "Machining direction if no interactions bt planes"
-(declare (salience 1000))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 995))
 	?plane <- (Plane (Name ?Nam) (Orientation -1))
 	(not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
 =>
@@ -193,8 +184,7 @@
 )
 
 (defrule faceSideMilling_2 "Machining direction if no interactions bt planes"
-(declare (salience 1000))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 994))
 	?plane <- (Plane (Name ?Nam) (Orientation -2))
 	(not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
 =>
@@ -206,8 +196,7 @@
 )
 
 (defrule faceSideMilling_3 "Machining direction if no interactions bt planes"
-(declare (salience 1000))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 993))
 	?plane <- (Plane (Name ?Nam) (Orientation -3))
 	(not (Relationship (Feature1 ?Nam) (Feature2 ?Ft2)))
 =>
@@ -219,8 +208,7 @@
 )
 
 (defrule perpendicularPlanes12 "Machining direction for perpendicular planes"
-(declare (salience 1000))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 992))
 	?plane1 <- (Plane (Name ?Nam1) (Length ?Len1) (Width ?Wid1) (Orientation ?Ori1))
 	?plane2 <- (Plane (Name ?Nam2) (Length ?Len2) (Width ?Wid2) (Orientation ?Ori2))	
 	?relation <- (Relationship (Feature1 ?Nam1) (Feature2 ?Nam2) (Relation Perpendicular))
@@ -231,8 +219,7 @@
 )
 
 (defrule perpendicularPlanes21 "Machining direction for perpendicular planes"
-(declare (salience 1000))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 991))
 	?plane1 <- (Plane (Name ?Nam1) (Length ?Len1) (Width ?Wid1) (Orientation ?Ori1))
 	?plane2 <- (Plane (Name ?Nam2) (Length ?Len2) (Width ?Wid2) (Orientation ?Ori2))	
 	?relation <- (Relationship (Feature1 ?Nam1) (Feature2 ?Nam2) (Relation Perpendicular))
@@ -243,8 +230,7 @@
 )
 
 (defrule contactPlane "Machining direction for contact planes" ;;need  to include "machined seperatly" feature
-(declare (salience 1000))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 990))
 	?plane1 <- (Plane (Name ?Nam1) (Orientation ?Ori1))
 	?plane2 <- (Plane (Name ?Nam2) (Orientation ?Ori2))	
 	?relation <- (Relationship (Feature1 ?Nam1) (Feature2 ?Nam2) (Relation Contact))
@@ -256,8 +242,7 @@
 )
 
 (defrule Pocket "Machining direction for slot/pocket" 
-(declare (salience 1000))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 989))
 	?slot <- (Slot (Name ?Nam) (BottomOrientation ?BotOri))
 =>
 	(printout t "Direction of machining: " ?BotOri crlf)
@@ -265,8 +250,7 @@
 )
 
 (defrule roundThroughPocket "Machining direction for bottom rounded through slot/pocket" 
-(declare (salience 1000))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 987))
 	?slot <- (Slot (Name ?Nam) (Ftype Through) (Bottom Round) (BottomOrientation ?BotOri) (SideOrientation ?SidOri))
 =>
 	(printout t "Direction of machining: " ?BotOri " or: " ?SidOri " or: " (* ?SidOri -1) crlf)
@@ -279,7 +263,6 @@
 ;;-----Hole------
 (defrule deepDrilling "Deep drilling"
 (declare (salience 900))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
 	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype NonThrough) (Diameter ?Dia))
 	?tool <- (Tool (Name ?ToolName) (Type DrillBit) (Diameter ?Dia) (Length ?ToolLen))
 	(test (>= (/ ?Len ?Dia) 2.0))
@@ -291,8 +274,7 @@
 )
 
 (defrule normalDrilling "drilling normal"
-(declare (salience 900))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 899))
 	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype NonThrough) (Diameter ?Dia))
 	?tool <- (Tool (Name ?ToolName) (Type DrillBit) (Diameter ?Dia) (Length ?ToolLen))
 	(test (<= ?Len ?ToolLen))
@@ -306,8 +288,7 @@
 )
 
 (defrule normalThroughDrilling "drilling normal Through"
-(declare (salience 900))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 898))
 	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype Through) (Diameter ?Dia))
 	?tool <- (Tool (Name ?ToolName) (Type DrillBit) (Diameter ?Dia) (Length ?ToolLen))
 	(test(<= ?Len ?ToolLen))
@@ -318,8 +299,7 @@
 	(retract ?feature)
 )
 (defrule MillingHole "Milling Hole"
-(declare (salience 900))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 897))
 	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype Through) (Diameter ?Dia))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(<= ?Len ?ToolLen))
@@ -333,8 +313,7 @@
 
 ;;-----Face------
 (defrule FaceMillingWithPerpendicular "Face Milling"  ;;;;; Attention ! checker b en relation avec a
-(declare (salience 900))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 896))
 	?plane1 <- (Plane (Name ?Nam1) (Width ?Width) (Length ?Len) (Orientation ?Ori))
 	?relation <- (Relationship (Feature1 ?Nam1) (Feature2 ?Nam2) (Relation Perpendicular))
 	?plane2 <- (Plane (Name ?Nam2) (Width ?Width2) (Length ?Len2))
@@ -348,8 +327,7 @@
 	(retract ?plane1)
 )
 (defrule FaceMilling "Face Milling"  ;;;;; Attention ! checker b en relation avec a
-(declare (salience 900))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 895))
 	?feature <- (Plane (Name ?Nam) (Width ?Width) (Length ?Len) (Orientation ?Ori))
 	?machiningDirection <- (MachiningDirection (Name ?mdName) (Orientation ?mdOri)) (FaceSide Face)
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
@@ -360,8 +338,7 @@
 )
 
 (defrule SideMilling "Side Milling"
-(declare (salience 900))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 894))
 	?feature <- (Plane (Name ?Nam) (Length ?Len) (Orientation ?Ori)) ;; achtung, Len est bien necessaire
 	?machiningDirection <- (MachiningDirection (FaceSide Side))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
@@ -374,8 +351,7 @@
 )
 ;;-----Pocket------
 (defrule FaceMillingPocket "Face Milling Pocket"  
-(declare (salience 900))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 893))
 	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Length ?Len))
 	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Face))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
@@ -388,8 +364,7 @@
 )
 
 (defrule SideMillingPocket "Side Milling Side"  
-(declare (salience 900))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 892))
 	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Length ?Len))
 	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Side))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
@@ -404,7 +379,6 @@
 ;;-----Step 4------
 (defrule MachiningMachineDir1 "Machined by machine1"  
 (declare (salience 800))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
 	?Machine <- (Machine (Name ?MachineNam) (Orientation1 ?Ori1))
 	?machiningDirection <- (MachiningDirection (Name ?FeatureNam) (Orientation ?Ori1))
 =>
@@ -415,8 +389,7 @@
 )
 
 (defrule MachiningMachineDir2 "Machined by machine2"  
-(declare (salience 800))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 799))
 	?Machine <- (Machine (Name ?MachineNam) (Orientation2 ?Ori2))
 	?machiningDirection <- (MachiningDirection (Name ?FeatureNam) (Orientation ?Ori2))
 =>
@@ -427,8 +400,7 @@
 )
 
 (defrule MachiningMachineDir3 "Machined by machine3"  
-(declare (salience 800))
-	?hole <- (Hole (Name ?Nam) (Orientation ?Ori) (Ftype Through))
+(declare (salience 798))
 	?Machine <- (Machine (Name ?MachineNam) (Orientation1 ?Ori3))
 	?machiningDirection <- (MachiningDirection (Name ?FeatureNam) (Orientation ?Ori3))
 =>
