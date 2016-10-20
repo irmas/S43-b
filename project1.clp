@@ -39,6 +39,13 @@
 	(slot Diameter (type FLOAT) (default 0.0))
 	(slot Length (type FLOAT) (default 0.0))
 )
+
+(deftemplate Machine "Definition of Machine"
+	(slot Name (type SYMBOL) (default none)) ;; H1, H2 on associe un outil à un trou / plan
+	(slot Orientation1 (type INTEGER))
+	(slot Orientation2 (type INTEGER))
+	(slot Orientation3 (type INTEGER))
+)
 ;;(deftemplate Tool "Definition of Tool"
 ;;	(slot Feature (type SYMBOL) (default none)) ;; H1, H2 on associe un outil à un trou / plan
 ;;	(slot MinDiameter (type FLOAT) (default 0.0))
@@ -101,6 +108,10 @@
 (assert(Tool (Name Mill3)(Type Mill)(Diameter 4.0)(Length 2.0)))
 (assert(Tool (Name Mill4)(Type Mill)(Diameter 20.0)(Length 3.0)))
 ;;(assert(Relationship (Feature1 )(Feature2 )(Relation )))
+(assert(Machine (Name M1)(Orientation1 -1)(Orientation2 2)(Orientation3 2)))
+(assert(Machine (Name M2)(Orientation1 1)(Orientation2 2)(Orientation3 -2)))
+(assert(Machine (Name M3)(Orientation1 2)(Orientation2 3)(Orientation3 3)))
+(assert(Machine (Name M4)(Orientation1 -1)(Orientation2 1)(Orientation3 2)))
 )
 ;; ---------- Step 2 ----------
 
@@ -279,4 +290,11 @@
 	(printout t "Side Milling Pocket" ?Nam crlf)
 	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
 	(retract ?feature)
+)
+;;-----Step 4------
+(defrule MachiningMachine "Side Milling Side"  
+	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi))
+=>
+	(printout t "Side Milling Pocket" ?Nam crlf)
+	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
 )
