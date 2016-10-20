@@ -58,6 +58,10 @@
 	(slot Orientation (type INTEGER))
 	(slot FaceSide (type SYMBOL) (allowed-symbols Face Side NA)(default NA))
 )
+(deftemplate FeatureMachinedBy "Determine direction of machining"
+	(slot FeatureName (type SYMBOL) (default none))
+	(slot MachineName (type SYMBOL) (default none))
+)
 
 (defrule Init "Rule which triggers with the no-fact fact"
 (initial-fact)
@@ -102,7 +106,7 @@
 (assert(Tool (Name DB2)(Type DrillBit)(Diameter 12.0)(Length 80.0)))
 (assert(Tool (Name DB3)(Type DrillBit)(Diameter 10.0)(Length 60.0)))
 (assert(Tool (Name DB4)(Type DrillBit)(Diameter 20.0)(Length 70.0)))
-(assert(Tool (Name DB5)(Type DrillBit)(Diameter 6.0)(Length 80.0)))
+(assert(Tool (Name DB5)(Type DrillBit)(Diameter 6.0)(Length 60.0)))
 (assert(Tool (Name Mill1)(Type Mill)(Diameter 15.0)(Length 40.0)))
 (assert(Tool (Name Mill2)(Type Mill)(Diameter 20.0)(Length 80.0)))
 (assert(Tool (Name Mill3)(Type Mill)(Diameter 4.0)(Length 2.0)))
@@ -292,9 +296,30 @@
 	(retract ?feature)
 )
 ;;-----Step 4------
-(defrule MachiningMachine "Side Milling Side"  
-	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi))
+(defrule MachiningMachineDir1 "Machined by machine1"  
+	?Machine <- (Machine (Name ?MachineNam) (Orientation1 ?Ori1))
+	?machiningDirection <- (MachiningDirection (Name ?FeatureNam) (Orientation ?Ori1))
 =>
-	(printout t "Side Milling Pocket" ?Nam crlf)
+	(printout t "Machined my first direction of machine" ?MachineNam crlf)
+
+	(assert(FeatureMachinedBy (FeatureName ?FeatureNam)(MachineName ?MachineNam)))
+	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
+)
+(defrule MachiningMachineDir2 "Machined by machine2"  
+	?Machine <- (Machine (Name ?MachineNam) (Orientation2 ?Ori2))
+	?machiningDirection <- (MachiningDirection (Name ?FeatureNam) (Orientation ?Ori2))
+=>
+	(printout t "Machined my second direction of machine" ?MachineNam crlf)
+
+	(assert(FeatureMachinedBy (FeatureName ?FeatureNam)(MachineName ?MachineNam)))
+	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
+)
+(defrule MachiningMachineDir3 "Machined by machine3"  
+	?Machine <- (Machine (Name ?MachineNam) (Orientation1 ?Ori3))
+	?machiningDirection <- (MachiningDirection (Name ?FeatureNam) (Orientation ?Ori3))
+=>
+	(printout t "Machined by third direction of machine" ?MachineNam crlf)
+
+	(assert(FeatureMachinedBy (FeatureName ?FeatureNam)(MachineName ?MachineNam)))
 	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
 )
