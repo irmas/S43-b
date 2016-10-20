@@ -343,7 +343,7 @@
 	?Machine <- (Machine (Name ?MachineNam) (Orientation1 ?Ori1))
 	?machiningDirection <- (MachiningDirection (Name ?FeatureNam) (Orientation ?Ori1))
 =>
-	(printout t "Machined my first direction of machine" ?MachineNam crlf)
+	(printout t "Machined by first direction of machine" ?MachineNam crlf)
 
 	(assert(FeatureMachinedBy (FeatureName ?FeatureNam)(MachineName ?MachineNam)))
 	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
@@ -352,7 +352,7 @@
 	?Machine <- (Machine (Name ?MachineNam) (Orientation2 ?Ori2))
 	?machiningDirection <- (MachiningDirection (Name ?FeatureNam) (Orientation ?Ori2))
 =>
-	(printout t "Machined my second direction of machine" ?MachineNam crlf)
+	(printout t "Machined by second direction of machine" ?MachineNam crlf)
 
 	(assert(FeatureMachinedBy (FeatureName ?FeatureNam)(MachineName ?MachineNam)))
 	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
