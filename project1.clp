@@ -127,6 +127,7 @@
 (assert(phaseList (MachineName M5)(FeatureList (create$ ) )))
 ;; test part 5
 (assert(Relationship (Feature1 H4)(Feature2 H1)(Relation Cross))) ;; on dit que H4 doit être fait avant H1
+(assert(Relationship (Feature1 P2)(Feature2 P3)(Relation Contact))) ;; on dit que H4 doit être fait avant H1
 )
 ;; ---------- Step 2 ----------
 
@@ -485,6 +486,32 @@
 			;;(printout t ?cnt1 " " ?cnt2 crlf)
 	)
 )		
+(defrule CheckingContactPlane "Checking plane contact compatability"  
+(declare (salience 600))
+	?Rel <- (Relationship (Feature1 ?Feature1) (Feature2 ?Feature2) (Relation Contact))
+	?Hole1 <- (Plane (Name ?Feature1) (Length ?Len1) (Width ?Width1))
+	?Hole2 <- (Plane (Name ?Feature2) (Length ?Len2) (Width ?Width2))
+	?phaseList <- (phaseList (MachineName ?MachineNam) (FeatureList $?FeatureList))
+=>
+	;;(loop-for-count (?cnt1 1 (length$ $?FeatureList)) do
+	;;	(loop-for-count (?cnt2 1 (length$ $?featurelist)) do
+	;;					
+	;;))
+	(if (and (member$ ?Feature1 $?FeatureList) (member$ ?Feature2 $?FeatureList))  then 
+		(printout t (member$ ?Feature1 $?FeatureList) " est dans la meme liste que " (member$ ?Feature2 $?FeatureList) crlf)
+		(printout t ?Feature1 " est dans la meme liste que " ?Feature2 crlf)
+		(if (< (* ?Len1 ?Width1) (* ?Len2 ?Width2)) then
+			(printout t "on doit faire la plus petite surface en premier, c'est a dire " ?Feature1 crlf)
+			(modify ?phaseList (MachineName ?MachineNam)(FeatureList (insert$ $?FeatureList 1 ?Feature1)))
+		)
+		(if (> (* ?Len1 ?Width1) (* ?Len2 ?Width2)) then
+			(printout t "on doit faire la plus petite surface en premier, c'est a dire " ?Feature2 crlf)
+			(modify ?phaseList (MachineName ?MachineNam)(FeatureList (insert$ $?FeatureList 1 ?Feature2)))
+		)
+		(retract ?Rel)
+			;;(printout t ?cnt1 " " ?cnt2 crlf)
+	)
+)
 	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
 
 
