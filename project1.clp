@@ -69,26 +69,12 @@
 (defrule Init "Rule which triggers with the no-fact fact"
 (initial-fact)
 =>
-;;(assert(Plane (Name P1)(Length 100.0)(Width 50.0)(Orientation 3)))
+(assert(Plane (Name P1)(Length 150.0)(Width 50.0)(Orientation -3)))
 (assert(Plane (Name P2)(Length 50.0)(Width 50.0)(Orientation 3)))
 (assert(Plane (Name P3)(Length 50.0)(Width 20.0)(Orientation 2)))
 (assert(Plane (Name P4)(Length 50.0)(Width 20.0)(Orientation -2)))
 (assert(Plane (Name P5)(Length 40.0)(Width 10.0)(Orientation -1)))
 (assert(Plane (Name P6)(Length 40.0)(Width 10.0)(Orientation -1)))
-;;(assert(Plane (Name P4)(Length 150.0)(Width 40.0)(Orientation -2)))
-;;(assert(Plane (Name P5)(Length 50.0)(Width 20.0)(Orientation 2)))
-;;(assert(Plane (Name P6)(Length 50.0)(Width 20.0)(Orientation -2)))
-;;(assert(Plane (Name P7)(Length 50.0)(Width 6.0)(Orientation 3)))
-;;(assert(Plane (Name P8)(Length 50.0)(Width 6.0)(Orientation -3)))
-;;(assert(Plane (Name P9)(Length 50.0)(Width 6.0)(Orientation 3)))
-;;(assert(Plane (Name P10)(Length 50.0)(Width 6.0)(Orientation -3)))
-;;(assert(Plane (Name P11)(Length 20.0)(Width 6.0)(Orientation 1)))
-;;(assert(Plane (Name P12)(Length 20.0)(Width 6.0)(Orientation -1)))
-;;(assert(Plane (Name P13)(Length 20.0)(Width 6.0)(Orientation 1)))
-;;(assert(Plane (Name P14)(Length 20.0)(Width 6.0)(Orientation -1)))
-;;(assert(Plane (Name P15)(Length 50.0)(Width 20.0)(Orientation -2)))
-;;(assert(Plane (Name P16)(Length 40.0)(Width 10.0)(Orientation -1)))
-;;(assert(Plane (Name P17)(Length 40.0)(Width 10.0)(Orientation -1)))
 (assert(Slot (Name S1)(Length 50.0)(Height 5.0)(Width 6.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation 3)(SideOrientation 1)))
 (assert(Slot (Name S2)(Length 50.0)(Height 5.0)(Width 6.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation 3)(SideOrientation 1)))
 (assert(Slot (Name S3)(Length 40.0)(Height 20.0)(Width 20.0)(Inverse NonInverse)(Ftype NonThrough)(Bottom Square)(BottomOrientation 3)(SideOrientation 1)))
@@ -117,6 +103,18 @@
 (assert(Tool (Name Mill4)(Type Mill)(Diameter 20.0)(Length 3.0)))
 (assert(Tool (Name Mill5)(Type Mill)(Diameter 3.0)(Length 10.0)))
 (assert(Relationship (Feature1 P5)(Feature2 P6)(Relation Contact)))
+(assert(Relationship (Feature1 H1)(Feature2 P2)(Relation Start_in)))
+(assert(Relationship (Feature1 H2)(Feature2 P2)(Relation Start_in)))
+(assert(Relationship (Feature1 H3)(Feature2 P1)(Relation Lead_to)))
+(assert(Relationship (Feature1 H4)(Feature2 P1)(Relation Lead_to)))
+(assert(Relationship (Feature1 H5)(Feature2 P5)(Relation Start_in)))
+(assert(Relationship (Feature1 H6)(Feature2 P5)(Relation Start_in)))
+(assert(Relationship (Feature1 S11)(Feature2 P2)(Relation Start_in)))
+(assert(Relationship (Feature1 S9)(Feature2 P4)(Relation Start_in)))
+(assert(Relationship (Feature1 S10)(Feature2 P3)(Relation Start_in)))
+(assert(Relationship (Feature1 S5)(Feature2 P1)(Relation Start_in)))
+(assert(Relationship (Feature1 S7)(Feature2 P1)(Relation Start_in)))
+(assert(Relationship (Feature1 S4)(Feature2 P5)(Relation Start_in)))
 (assert(Machine (Name M1)(Orientation1 -1)(Orientation2 2)(Orientation3 -2)))
 (assert(Machine (Name M2)(Orientation1 1)(Orientation2 2)(Orientation3 -2)))
 (assert(Machine (Name M3)(Orientation1 2)(Orientation2 3)(Orientation3 3)))
@@ -358,7 +356,7 @@
 ;;-----Pocket------
 (defrule FaceMillingPocket "Face Milling Pocket"  
 (declare (salience 893))
-	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Length ?Len))
+	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Inverse NonInverse) (Length ?Len))
 	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Face))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(<= ?Height ?ToolLen))
@@ -370,8 +368,21 @@
 	(retract ?feature)
 )
 
-(defrule SideMillingPocket "Side Milling Side"  
+(defrule InverseFaceMillingPocket "Inverse Face Milling Pocket"  
 (declare (salience 892))
+	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Inverse Inverse) (Length ?Len))
+	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Face))
+	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
+	(test(<= ?Height ?ToolLen))
+=>
+	(printout t "Inverse Face Milling Pocket" ?Nam crlf)
+	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
+	;;(assert(Tool (Feature ?Nam)(MinLength ?Height)))
+	(retract ?feature)
+)
+
+(defrule SideMillingPocket "Side Milling Side"  
+(declare (salience 891))
 	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Inverse NonInverse) (Length ?Len))
 	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Side))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
@@ -383,14 +394,15 @@
 	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
 	(retract ?feature)
 )
-(defrule SideMillingPocket "Side Milling Side"  
-(declare (salience 892))
+
+(defrule InverseSideMillingPocket "Inverse Side Milling Side"  
+(declare (salience 890))
 	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Inverse Inverse) (Length ?Len))
 	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Side))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(>= ?Height ?ToolLen))
 =>
-	(printout t "Side Milling Pocket" ?Nam crlf)
+	(printout t "Inverse Side Milling Pocket" ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
 	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
 	(retract ?feature)
@@ -402,7 +414,7 @@
 	?Machine <- (Machine (Name ?MachineNam) (Orientation1 ?Ori1))
 	?machiningDirection <- (MachiningDirection (Name ?FeatureNam) (Orientation ?Ori1))
 =>
-	(printout t ?FeatureNam "Machined by first direction of machine" ?MachineNam crlf)
+	(printout t ?FeatureNam " machined by first direction of machine " ?MachineNam crlf)
 
 	(assert(FeatureMachinedBy (FeatureName ?FeatureNam)(MachineName ?MachineNam)))
 	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
@@ -414,7 +426,7 @@
 	?Machine <- (Machine (Name ?MachineNam) (Orientation2 ?Ori2))
 	?machiningDirection <- (MachiningDirection (Name ?FeatureNam) (Orientation ?Ori2))
 =>
-	(printout t ?FeatureNam "Machined my second direction of machine" ?MachineNam crlf)
+	(printout t ?FeatureNam " machined by second direction of machine " ?MachineNam crlf)
 
 	(assert(FeatureMachinedBy (FeatureName ?FeatureNam)(MachineName ?MachineNam)))
 	(retract ?machiningDirection)
@@ -426,7 +438,7 @@
 	?Machine <- (Machine (Name ?MachineNam) (Orientation1 ?Ori3))
 	?machiningDirection <- (MachiningDirection (Name ?FeatureNam) (Orientation ?Ori3))
 =>
-	(printout t ?FeatureNam "Machined by third direction of machine" ?MachineNam crlf)
+	(printout t ?FeatureNam " machined by third direction of machine " ?MachineNam crlf)
 
 	(assert(FeatureMachinedBy (FeatureName ?FeatureNam)(MachineName ?MachineNam)))
 	(retract ?machiningDirection)
