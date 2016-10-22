@@ -6,14 +6,14 @@
 	(slot Depth (type FLOAT) (default 0.0))
 	(slot Ftype (type SYMBOL) (allowed-symbols NonThrough Through))
 	(slot Orientation (type INTEGER))
-)
+	(slot Status (type SYMBOL) (allowed-symbols Done NotDone)))
 
 (deftemplate Plane "Definition of the plan structure"
 	(slot Name (type SYMBOL) (default none))
 	(slot Length (type FLOAT) (default 0.0))
 	(slot Width (type FLOAT) (default 0.0))
 	(slot Orientation (type INTEGER))
-)
+	(slot Status (type SYMBOL) (allowed-symbols Done NotDone)))
 
 (deftemplate Slot "Definition of the slot structure"
 	(slot Name (type SYMBOL) (default none))
@@ -25,7 +25,7 @@
 	(slot Bottom (type SYMBOL) (allowed-symbols Round Square None)(default Round))
 	(slot BottomOrientation (type INTEGER))
 	(slot SideOrientation (type INTEGER))
-)
+	(slot Status (type SYMBOL) (allowed-symbols Done NotDone)))
 
 (deftemplate Relationship "Definition of the relationships"
 	(slot Feature1 (type SYMBOL) (default none))
@@ -69,29 +69,29 @@
 (defrule Init "Rule which triggers with the no-fact fact"
 (initial-fact)
 =>
-(assert(Plane (Name P1)(Length 150.0)(Width 50.0)(Orientation -3)))
-(assert(Plane (Name P2)(Length 50.0)(Width 50.0)(Orientation 3)))
-(assert(Plane (Name P3)(Length 50.0)(Width 20.0)(Orientation 2)))
-(assert(Plane (Name P4)(Length 50.0)(Width 20.0)(Orientation -2)))
-(assert(Plane (Name P5)(Length 40.0)(Width 10.0)(Orientation -1)))
-(assert(Plane (Name P6)(Length 40.0)(Width 10.0)(Orientation -1)))
-(assert(Slot (Name S1)(Length 50.0)(Height 5.0)(Width 6.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation 3)(SideOrientation 1)))
-(assert(Slot (Name S2)(Length 50.0)(Height 5.0)(Width 6.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation 3)(SideOrientation 1)))
-(assert(Slot (Name S3)(Length 40.0)(Height 20.0)(Width 20.0)(Inverse NonInverse)(Ftype NonThrough)(Bottom Square)(BottomOrientation 3)(SideOrientation 1)))
-(assert(Slot (Name S4)(Length 40.0)(Height 30.0)(Width 28.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation -3)(SideOrientation 3)))
-(assert(Slot (Name S5)(Length 50.0)(Height 8.0)(Width 10.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation -3)(SideOrientation -2)))
-(assert(Slot (Name S6)(Length 50.0)(Height 4.0)(Width 24.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation -3)(SideOrientation -2)))
-(assert(Slot (Name S7)(Length 50.0)(Height 8.0)(Width 10.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation -3)(SideOrientation -2)))
-(assert(Slot (Name S8)(Length 50.0)(Height 4.0)(Width 24.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation -3)(SideOrientation -2)))
-(assert(Slot (Name S9)(Length 50.0)(Height 6.0)(Width 20.0)(Inverse Inverse)(Ftype Through)(Bottom Square)(BottomOrientation -2)(SideOrientation 1)))
-(assert(Slot (Name S10)(Length 50.0)(Height 6.0)(Width 20.0)(Inverse Inverse)(Ftype Through)(Bottom Square)(BottomOrientation 2)(SideOrientation 1)))
-(assert(Slot (Name S11)(Length 50.0)(Height 10.0)(Width 100.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation 3)(SideOrientation 2)))
-(assert(Hole (Name H1)(Diameter 12.0)(Depth 3.0)(Ftype NonThrough)(Orientation 3)))
-(assert(Hole (Name H2)(Diameter 12.0)(Depth 3.0)(Ftype NonThrough)(Orientation 3)))
-(assert(Hole (Name H3)(Diameter 6.0)(Depth 47.0)(Ftype Through)(Orientation 3)))
-(assert(Hole (Name H4)(Diameter 6.0)(Depth 47.0)(Ftype Through)(Orientation 3)))
-(assert(Hole (Name H5)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(Orientation -1)))
-(assert(Hole (Name H6)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(Orientation -1)))
+(assert(Plane (Name P1)(Length 150.0)(Width 50.0)(Orientation -3)(Status NotDone)))
+(assert(Plane (Name P2)(Length 50.0)(Width 50.0)(Orientation 3)(Status NotDone)))
+(assert(Plane (Name P3)(Length 50.0)(Width 20.0)(Orientation 2)(Status NotDone)))
+(assert(Plane (Name P4)(Length 50.0)(Width 20.0)(Orientation -2)(Status NotDone)))
+(assert(Plane (Name P5)(Length 40.0)(Width 10.0)(Orientation -1)(Status NotDone)))
+(assert(Plane (Name P6)(Length 40.0)(Width 10.0)(Orientation -1)(Status NotDone)))
+(assert(Slot (Name S1)(Length 50.0)(Height 5.0)(Width 6.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation 3)(SideOrientation 1)(Status NotDone)))
+(assert(Slot (Name S2)(Length 50.0)(Height 5.0)(Width 6.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation 3)(SideOrientation 1)(Status NotDone)))
+(assert(Slot (Name S3)(Length 40.0)(Height 20.0)(Width 20.0)(Inverse NonInverse)(Ftype NonThrough)(Bottom Square)(BottomOrientation 3)(SideOrientation 1)(Status NotDone)))
+(assert(Slot (Name S4)(Length 40.0)(Height 30.0)(Width 28.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation -3)(SideOrientation 3)(Status NotDone)))
+(assert(Slot (Name S5)(Length 50.0)(Height 8.0)(Width 10.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation -3)(SideOrientation -2)(Status NotDone)))
+(assert(Slot (Name S6)(Length 50.0)(Height 4.0)(Width 24.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation -3)(SideOrientation -2)(Status NotDone)))
+(assert(Slot (Name S7)(Length 50.0)(Height 8.0)(Width 10.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation -3)(SideOrientation -2)(Status NotDone)))
+(assert(Slot (Name S8)(Length 50.0)(Height 4.0)(Width 24.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation -3)(SideOrientation -2)(Status NotDone)))
+(assert(Slot (Name S9)(Length 50.0)(Height 6.0)(Width 20.0)(Inverse Inverse)(Ftype Through)(Bottom Square)(BottomOrientation -2)(SideOrientation 1)(Status NotDone)))
+(assert(Slot (Name S10)(Length 50.0)(Height 6.0)(Width 20.0)(Inverse Inverse)(Ftype Through)(Bottom Square)(BottomOrientation 2)(SideOrientation 1)(Status NotDone)))
+(assert(Slot (Name S11)(Length 50.0)(Height 10.0)(Width 100.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation 3)(SideOrientation 2)(Status NotDone)))
+(assert(Hole (Name H1)(Diameter 12.0)(Depth 3.0)(Ftype NonThrough)(Orientation 3)(Status NotDone)))
+(assert(Hole (Name H2)(Diameter 12.0)(Depth 3.0)(Ftype NonThrough)(Orientation 3)(Status NotDone)))
+(assert(Hole (Name H3)(Diameter 6.0)(Depth 47.0)(Ftype Through)(Orientation 3)(Status NotDone)))
+(assert(Hole (Name H4)(Diameter 6.0)(Depth 47.0)(Ftype Through)(Orientation 3)(Status NotDone)))
+(assert(Hole (Name H5)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(Orientation -1)(Status NotDone)))
+(assert(Hole (Name H6)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(Orientation -1)(Status NotDone)))
 (assert(Tool (Name DB1)(Type DrillBit)(Diameter 6.0)(Length 10.0)))
 (assert(Tool (Name DB2)(Type DrillBit)(Diameter 12.0)(Length 80.0)))
 (assert(Tool (Name DB3)(Type DrillBit)(Diameter 10.0)(Length 60.0)))
@@ -274,19 +274,19 @@
 ;;-----Hole------
 (defrule deepDrilling "Deep drilling"
 (declare (salience 900))
-	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype NonThrough) (Diameter ?Dia))
+	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype NonThrough) (Diameter ?Dia) (Status NotDone))
 	?tool <- (Tool (Name ?ToolName) (Type DrillBit) (Diameter ?Dia) (Length ?ToolLen))
 	(test (>= (/ ?Len ?Dia) 2.0))
 	(test (<= ?Len ?ToolLen))
 =>
 	(printout t "Deep drilling " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
-	(retract ?feature)
+	(modify ?feature (Status Done))
 )
 
 (defrule normalDrilling "drilling normal"
 (declare (salience 899))
-	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype NonThrough) (Diameter ?Dia))
+	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype NonThrough) (Diameter ?Dia) (Status NotDone))
 	?tool <- (Tool (Name ?ToolName) (Type DrillBit) (Diameter ?Dia) (Length ?ToolLen))
 	(test (<= ?Len ?ToolLen))
 	(test (<(/ ?Len ?Dia)2.0))
@@ -295,23 +295,23 @@
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
 ;;	(assert(MachiningDirection (Name ?Nam)(Orientation ?Ori)(FaceSide NA)))
 	;;(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
-	(retract ?feature)
+	(modify ?feature (Status Done))
 )
 
 (defrule normalThroughDrilling "drilling normal Through"
 (declare (salience 898))
-	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype Through) (Diameter ?Dia))
+	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype Through) (Diameter ?Dia) (Status NotDone))
 	?tool <- (Tool (Name ?ToolName) (Type DrillBit) (Diameter ?Dia) (Length ?ToolLen))
 	(test(<= ?Len ?ToolLen))
 =>
 	(printout t "drilling Normal " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
 	;;(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
-	(retract ?feature)
+	(modify ?feature (Status Done))
 )
 (defrule MillingHole "Milling Hole"
 (declare (salience 897))
-	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype Through) (Diameter ?Dia))
+	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype Through) (Diameter ?Dia) (Status NotDone))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(<= ?Len ?ToolLen))
 	(test(<= ?ToolDia (- ?Dia 4)))
@@ -325,7 +325,7 @@
 ;;-----Face------
 (defrule FaceMillingWithPerpendicular "Face Milling"  ;;;;; Attention ! checker b en relation avec a
 (declare (salience 896))
-	?plane1 <- (Plane (Name ?Nam1) (Width ?Width) (Length ?Len) (Orientation ?Ori))
+	?plane1 <- (Plane (Name ?Nam1) (Width ?Width) (Length ?Len) (Orientation ?Ori) (Status NotDone))
 	?relation <- (Relationship (Feature1 ?Nam1) (Feature2 ?Nam2) (Relation Perpendicular))
 	?plane2 <- (Plane (Name ?Nam2) (Width ?Width2) (Length ?Len2))
 	?machiningDirection <- (MachiningDirection (Name ?Nam) (FaceSide Face)) ;;(Orientation ?Ori)
@@ -335,22 +335,23 @@
 	(printout t "Face Milling " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam1)(ToolName ?ToolName)))
 	;;(assert(Tool (Feature ?Nam)(MinLength ?Len2))) ;;Condition sur MinLength -> on doit verifier que l'outil est assez long pour faire le plan d'a coté
-	(retract ?plane1)
+	(modify ?plane1 (Status Done))
+	(modify ?plane2 (Status Done))
 )
 (defrule FaceMilling "Face Milling"  ;;;;; Attention ! checker b en relation avec a
 (declare (salience 895))
-	?feature <- (Plane (Name ?Nam) (Width ?Width) (Length ?Len) (Orientation ?Ori))
+	?feature <- (Plane (Name ?Nam) (Width ?Width) (Length ?Len) (Orientation ?Ori) (Status NotDone))
 	?machiningDirection <- (MachiningDirection (Name ?mdName) (Orientation ?mdOri)) (FaceSide Face)
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 =>
 	(printout t "Face Milling " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
-	(retract ?feature)
+	(modify ?feature (Status Done))
 )
 
 (defrule SideMilling "Side Milling"
 (declare (salience 894))
-	?feature <- (Plane (Name ?Nam) (Length ?Len) (Orientation ?Ori)) ;; achtung, Len est bien necessaire
+	?feature <- (Plane (Name ?Nam) (Length ?Len) (Orientation ?Ori) (Status NotDone)) ;; achtung, Len est bien necessair (Status NotDone)e
 	?machiningDirection <- (MachiningDirection (FaceSide Side))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(<= ?Len ?ToolLen))
@@ -358,12 +359,12 @@
 	(printout t "Side Milling " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
 	;;(assert(Tool (Feature ?Nam)(MinLength ?Len)))
-	(retract ?feature)
+	(modify ?feature (Status Done))
 )
 ;;-----Pocket------
 (defrule FaceMillingPocket "Face Milling Pocket"  
 (declare (salience 893))
-	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Inverse NonInverse) (Length ?Len))
+	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Inverse NonInverse) (Length ?Len) (Status NotDone))
 	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Face))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(<= ?Height ?ToolLen))
@@ -372,12 +373,12 @@
 	(printout t "Face Milling Pocket " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
 	;;(assert(Tool (Feature ?Nam)(MinLength ?Height)))
-	(retract ?feature)
+	(modify ?feature (Status Done))
 )
 
 (defrule InverseFaceMillingPocket "Inverse Face Milling Pocket"  
 (declare (salience 892))
-	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Inverse Inverse) (Length ?Len))
+	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Inverse Inverse) (Length ?Len) (Status NotDone))
 	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Face))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(<= ?Height ?ToolLen))
@@ -385,12 +386,12 @@
 	(printout t "Inverse Face Milling Pocket " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
 	;;(assert(Tool (Feature ?Nam)(MinLength ?Height)))
-	(retract ?feature)
+	(modify ?feature (Status Done))
 )
 
 (defrule SideMillingPocket "Side Milling Side"  
 (declare (salience 891))
-	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Inverse NonInverse) (Length ?Len))
+	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Inverse NonInverse) (Length ?Len) (Status NotDone))
 	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Side))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(>= ?Height ?ToolLen))
@@ -399,12 +400,12 @@
 	(printout t "Side Milling Pocket " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
 	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
-	(retract ?feature)
+	(modify ?feature (Status Done))
 )
 
 (defrule InverseSideMillingPocket "Inverse Side Milling Side"  
 (declare (salience 890))
-	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Inverse Inverse) (Length ?Len))
+	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Inverse Inverse) (Length ?Len) (Status NotDone))
 	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Side))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
 	(test(>= ?Height ?ToolLen))
@@ -412,7 +413,7 @@
 	(printout t "Inverse Side Milling Pocket " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
 	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
-	(retract ?feature)
+	(modify ?feature (Status Done))
 )
 
 ;;-----Step 4------
@@ -461,6 +462,8 @@
 (defrule CheckingCompatHole "Checking Cross hole compatability"  
 (declare (salience 600))
 	?Rel <- (Relationship (Feature1 ?Feature1) (Feature2 ?Feature2) (Relation Cross))
+	?Hole1 <- (Hole (Name ?Feature1) (Diameter ?Dia1))
+	?Hole2 <- (Hole (Name ?Feature2) (Diameter ?Dia2))
 	?phaseList <- (phaseList (MachineName ?MachineNam) (FeatureList $?FeatureList))
 =>
 	;;(loop-for-count (?cnt1 1 (length$ $?FeatureList)) do
@@ -470,10 +473,13 @@
 	(if (and (member$ ?Feature1 $?FeatureList) (member$ ?Feature2 $?FeatureList))  then 
 		(printout t (member$ ?Feature1 $?FeatureList) " est dans la meme liste que " (member$ ?Feature2 $?FeatureList) crlf)
 		(printout t ?Feature1 " est dans la meme liste que " ?Feature2 crlf)
-		(if (>(member$ ?Feature2 $?FeatureList)(member$ ?Feature1 $?FeatureList)) then
-			(printout t ?Feature1 " est fait apres " ?Feature2 " ce qui n'est pas normal" crlf)
-			(printout t "on remet dans le bon ordre" crlf)
+		(if (< ?Dia1 ?Dia2) then
+			(printout t "on doit faire le plus petit diametre en premier, c'est a dire " ?Feature1 crlf)
 			(modify ?phaseList (MachineName ?MachineNam)(FeatureList (insert$ $?FeatureList 1 ?Feature1)))
+		)
+		(if (> ?Dia1 ?Dia2) then
+			(printout t "on doit faire le plus petit diametre en premier, c'est a dire " ?Feature2 crlf)
+			(modify ?phaseList (MachineName ?MachineNam)(FeatureList (insert$ $?FeatureList 1 ?Feature2)))
 		)
 		(retract ?Rel)
 			;;(printout t ?cnt1 " " ?cnt2 crlf)
