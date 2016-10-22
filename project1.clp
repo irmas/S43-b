@@ -34,7 +34,7 @@
 )
 
 (deftemplate Tool "Definition of Tool"
-	(slot Name (type SYMBOL) (default none)) ;; H1, H2 on associe un outil à un trou / plan
+	(slot Name (type SYMBOL) (default none)) ;; H1, H2 on associe un outil à un trou / plan / slot
 	(slot Type (type SYMBOL) (allowed-symbols DrillBit Mill))
 	(slot Diameter (type FLOAT) (default 0.0))
 	(slot Length (type FLOAT) (default 0.0))
@@ -125,12 +125,6 @@
 (assert(phaseList (MachineName M3)(FeatureList (create$ ) )))
 (assert(phaseList (MachineName M4)(FeatureList (create$ ) )))
 (assert(phaseList (MachineName M5)(FeatureList (create$ ) )))
-;; test part 5
-(assert(Relationship (Feature1 H4)(Feature2 H1)(Relation Cross))) ;; on dit que H4 doit être fait avant H1
-(assert(Relationship (Feature1 P2)(Feature2 P3)(Relation Contact))) ;; on dit que H4 doit être fait avant H1
-(assert(Relationship (Feature1 P2)(Feature2 H1)(Relation Start_in))) ;; on dit que H4 doit être fait avant H1
-(assert(Relationship (Feature1 P2)(Feature2 S1)(Relation Start_in))) ;; on dit que H4 doit être fait avant H1
-(assert(Relationship (Feature1 S2)(Feature2 H1)(Relation Start_in))) ;; on dit que H4 doit être fait avant H1
 )
 ;; ---------- Step 2 ----------
 
@@ -280,8 +274,7 @@
 (declare (salience 900))
 	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype NonThrough) (Diameter ?Dia) (Status NotDone))
 	?tool <- (Tool (Name ?ToolName) (Type DrillBit) (Diameter ?Dia) (Length ?ToolLen))
-	(test (>= (/ ?Len ?Dia) 2.0))
-	(test (<= ?Len ?ToolLen))
+	(and (test (>= (/ ?Len ?Dia) 2.0)) (test (<= ?Len ?ToolLen)))
 =>
 	(printout t "Deep drilling " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
@@ -292,13 +285,10 @@
 (declare (salience 899))
 	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype NonThrough) (Diameter ?Dia) (Status NotDone))
 	?tool <- (Tool (Name ?ToolName) (Type DrillBit) (Diameter ?Dia) (Length ?ToolLen))
-	(test (<= ?Len ?ToolLen))
-	(test (<(/ ?Len ?Dia)2.0))
+	(and (test (<= ?Len ?ToolLen)) (test (<(/ ?Len ?Dia)2.0)))
 =>
 	(printout t "Drilling Normal " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
-;;	(assert(MachiningDirection (Name ?Nam)(Orientation ?Ori)(FaceSide NA)))
-	;;(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
 	(modify ?feature (Status Done))
 )
 
@@ -310,19 +300,16 @@
 =>
 	(printout t "drilling Normal " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
-	;;(assert(Tool (Feature ?Nam)(MaxDiameter ?Dia)(MinDiameter ?Dia)(MinLength ?Len)))
 	(modify ?feature (Status Done))
 )
 (defrule MillingHole "Milling Hole"
 (declare (salience 897))
 	?feature <- (Hole (Name ?Nam) (Depth ?Len) (Ftype Through) (Diameter ?Dia) (Status NotDone))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
-	(test(<= ?Len ?ToolLen))
-	(test(<= ?ToolDia (- ?Dia 4)))
+	(and (test(<= ?Len ?ToolLen)) (test(<= ?ToolDia (- ?Dia 4))))
 =>
 	(printout t "Milling Hole " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
-	;;(assert(Tool (Feature ?Nam)(MaxDiameter (- ?Dia 4))(MinLength ?Len)))
 	(modify ?feature (Diameter (- ?Dia 2)))
 )
 
@@ -338,7 +325,6 @@
 =>
 	(printout t "Face Milling " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam1)(ToolName ?ToolName)))
-	;;(assert(Tool (Feature ?Nam)(MinLength ?Len2))) ;;Condition sur MinLength -> on doit verifier que l'outil est assez long pour faire le plan d'a coté
 	(modify ?plane1 (Status Done))
 	(modify ?plane2 (Status Done))
 )
@@ -362,7 +348,6 @@
 =>
 	(printout t "Side Milling " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
-	;;(assert(Tool (Feature ?Nam)(MinLength ?Len)))
 	(modify ?feature (Status Done))
 )
 ;;-----Pocket------
@@ -371,12 +356,10 @@
 	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Inverse NonInverse) (Length ?Len) (Status NotDone))
 	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Face))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
-	(test(<= ?Height ?ToolLen))
-	(test(>= ?Width ?ToolDia))
+	(and (test(<= ?Height ?ToolLen)) (test(>= ?Width ?ToolDia)))
 =>
 	(printout t "Face Milling Pocket " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
-	;;(assert(Tool (Feature ?Nam)(MinLength ?Height)))
 	(modify ?feature (Status Done))
 )
 
@@ -389,7 +372,6 @@
 =>
 	(printout t "Inverse Face Milling Pocket " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
-	;;(assert(Tool (Feature ?Nam)(MinLength ?Height)))
 	(modify ?feature (Status Done))
 )
 
@@ -398,12 +380,10 @@
 	?feature <- (Slot (Name ?Nam) (Height ?Height) (Width ?Width) (Inverse NonInverse) (Length ?Len) (Status NotDone))
 	?machiningDirection <- (MachiningDirection (Name ?Nam) (Orientation ?mdi) (FaceSide Side))
 	?tool <- (Tool (Name ?ToolName) (Type Mill) (Diameter ?ToolDia) (Length ?ToolLen))
-	(test(>= ?Height ?ToolLen))
-	(test(>= ?Width ?ToolDia))
+	(and (test(>= ?Height ?ToolLen)) (test(>= ?Width ?ToolDia)))
 =>
 	(printout t "Side Milling Pocket " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
-	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
 	(modify ?feature (Status Done))
 )
 
@@ -416,7 +396,6 @@
 =>
 	(printout t "Inverse Side Milling Pocket " ?Nam crlf)
 	(assert(FeatureMachinedWith (FeatureName ?Nam)(ToolName ?ToolName)))
-	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
 	(modify ?feature (Status Done))
 )
 
@@ -431,7 +410,6 @@
 
 	(modify ?phaseList (MachineName ?MachineNam)(FeatureList (insert$ $?FeatureList 1 ?FeatureNam)))
 	(assert(FeatureMachinedBy (FeatureName ?FeatureNam)(MachineName ?MachineNam)))
-	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
 	(retract ?machiningDirection)
 )
 
@@ -446,7 +424,6 @@
 	(modify ?phaseList (MachineName ?MachineNam)(FeatureList (insert$ $?FeatureList 1 ?FeatureNam)))
 	(assert(FeatureMachinedBy (FeatureName ?FeatureNam)(MachineName ?MachineNam)))
 	(retract ?machiningDirection)
-	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
 )
 
 (defrule MachiningMachineDir3 "Machined by machine3"  
@@ -459,7 +436,6 @@
 	(assert(FeatureMachinedBy (FeatureName ?FeatureNam)(MachineName ?MachineNam)))
 	(modify ?phaseList (MachineName ?MachineNam)(FeatureList (insert$ $?FeatureList 1 ?FeatureNam)))
 	(retract ?machiningDirection)
-	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
 )
 
 ;;---------- Step 5 ----------
@@ -470,10 +446,6 @@
 	?Hole2 <- (Hole (Name ?Feature2) (Diameter ?Dia2))
 	?phaseList <- (phaseList (MachineName ?MachineNam) (FeatureList $?FeatureList))
 =>
-	;;(loop-for-count (?cnt1 1 (length$ $?FeatureList)) do
-	;;	(loop-for-count (?cnt2 1 (length$ $?featurelist)) do
-	;;					
-	;;))
 	(if (and (member$ ?Feature1 $?FeatureList) (member$ ?Feature2 $?FeatureList))  then 
 		(printout t ?Feature1 " est dans la meme liste que " ?Feature2 crlf)
 		(if (< ?Dia1 ?Dia2) then
@@ -485,9 +457,9 @@
 			(modify ?phaseList (MachineName ?MachineNam)(FeatureList (insert$ $?FeatureList 1 ?Feature2)))
 		)
 		(retract ?Rel)
-			;;(printout t ?cnt1 " " ?cnt2 crlf)
 	)
 )		
+
 (defrule CheckingContactPlane "Checking plane contact compatability"  
 (declare (salience 500))
 	?Rel <- (Relationship (Feature1 ?Feature1) (Feature2 ?Feature2) (Relation Contact))
@@ -495,10 +467,6 @@
 	?Hole2 <- (Plane (Name ?Feature2) (Length ?Len2) (Width ?Width2))
 	?phaseList <- (phaseList (MachineName ?MachineNam) (FeatureList $?FeatureList))
 =>
-	;;(loop-for-count (?cnt1 1 (length$ $?FeatureList)) do
-	;;	(loop-for-count (?cnt2 1 (length$ $?featurelist)) do
-	;;					
-	;;))
 	(if (and (member$ ?Feature1 $?FeatureList) (member$ ?Feature2 $?FeatureList))  then 
 		(printout t ?Feature1 " est dans la meme liste que " ?Feature2 crlf)
 		(if (< (* ?Len1 ?Width1) (* ?Len2 ?Width2)) then
@@ -513,6 +481,7 @@
 			;;(printout t ?cnt1 " " ?cnt2 crlf)
 	)
 )
+
 (defrule StartsInHolePlane "Hole Starts in Plane"  
 (declare (salience 500))
 	?Rel <- (Relationship (Feature1 ?Feature1) (Feature2 ?Feature2) (Relation Start_in))
@@ -520,10 +489,6 @@
 	?Hole2 <- (Hole (Name ?Feature2))
 	?phaseList <- (phaseList (MachineName ?MachineNam) (FeatureList $?FeatureList))
 =>
-	;;(loop-for-count (?cnt1 1 (length$ $?FeatureList)) do
-	;;	(loop-for-count (?cnt2 1 (length$ $?featurelist)) do
-	;;					
-	;;))
 	(if (and (member$ ?Feature1 $?FeatureList) (member$ ?Feature2 $?FeatureList))  then 
 		(printout t ?Feature1 " est dans la meme liste que " ?Feature2 crlf)
 		(printout t "on doit faire le plan en premier cad " ?Feature1 crlf)
@@ -531,17 +496,14 @@
 	)
 	(retract ?Rel)
 )
+
 (defrule StartsInHoleSlot "Hole Starts in Slot"  
 (declare (salience 500))
 	?Rel <- (Relationship (Feature1 ?Feature1) (Feature2 ?Feature2) (Relation Start_in))
-	?Hole1 <- (Slot (Name ?Feature1))
-	?Hole2 <- (Hole (Name ?Feature2))
+	?Hole1 <- (Slot (Name ?Feature2))
+	?Hole2 <- (Hole (Name ?Feature1))
 	?phaseList <- (phaseList (MachineName ?MachineNam) (FeatureList $?FeatureList))
 =>
-	;;(loop-for-count (?cnt1 1 (length$ $?FeatureList)) do
-	;;	(loop-for-count (?cnt2 1 (length$ $?featurelist)) do
-	;;					
-	;;))
 	(if (and (member$ ?Feature1 $?FeatureList) (member$ ?Feature2 $?FeatureList))  then 
 		(printout t ?Feature1 " est dans la meme liste que " ?Feature2 crlf)
 		(printout t "on doit faire le slot en premier cad " ?Feature1 crlf)
@@ -549,17 +511,14 @@
 	)
 	(retract ?Rel)
 )
+
 (defrule StartsInSlotPlane "Slot Starts in Plane"  
 (declare (salience 500))
 	?Rel <- (Relationship (Feature1 ?Feature1) (Feature2 ?Feature2) (Relation Start_in))
-	?Hole1 <- (Plane (Name ?Feature1))
-	?Hole2 <- (Slot (Name ?Feature2))
+	?Hole1 <- (Plane (Name ?Feature2))
+	?Hole2 <- (Slot (Name ?Feature1))
 	?phaseList <- (phaseList (MachineName ?MachineNam) (FeatureList $?FeatureList))
 =>
-	;;(loop-for-count (?cnt1 1 (length$ $?FeatureList)) do
-	;;	(loop-for-count (?cnt2 1 (length$ $?featurelist)) do
-	;;					
-	;;))
 	(if (and (member$ ?Feature1 $?FeatureList) (member$ ?Feature2 $?FeatureList))  then 
 		(printout t ?Feature1 " est dans la meme liste que " ?Feature2 crlf)
 		(printout t "on doit faire le plan en premier cad " ?Feature1 crlf)
@@ -567,7 +526,3 @@
 	)
 	(retract ?Rel)
 )
-	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
-
-
-
