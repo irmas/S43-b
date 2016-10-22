@@ -63,7 +63,7 @@
 )
 (deftemplate phaseList "phase list"
 	(slot MachineName (type SYMBOL) (default none))
-	(slot List (type SYMBOL) (default none))
+	(multislot FeatureList (type SYMBOL) (default none))
 )
 
 (defrule Init "Rule which triggers with the no-fact fact"
@@ -122,6 +122,13 @@
 (assert(Machine (Name M3)(Orientation1 2)(Orientation2 3)(Orientation3 3)))
 (assert(Machine (Name M4)(Orientation1 -1)(Orientation2 1)(Orientation3 2)))
 (assert(Machine (Name M5)(Orientation1 -3)(Orientation2 3)(Orientation3 2)))
+(assert(phaseList (MachineName M1)(FeatureList (create$ ) )))
+(assert(phaseList (MachineName M2)(FeatureList (create$ ) )))
+(assert(phaseList (MachineName M3)(FeatureList (create$ ) )))
+(assert(phaseList (MachineName M4)(FeatureList (create$ ) )))
+(assert(phaseList (MachineName M5)(FeatureList (create$ ) )))
+;; test part 5
+(assert(Relationship (Feature1 H4)(Feature2 H1)(Relation Cross))) ;; on dit que H4 doit être fait avant H1
 )
 ;; ---------- Step 2 ----------
 
@@ -401,9 +408,11 @@
 (declare (salience 800))
 	?Machine <- (Machine (Name ?MachineNam) (Orientation1 ?Ori1))
 	?machiningDirection <- (MachiningDirection (Name ?FeatureNam) (Orientation ?Ori1))
+	?phaseList <- (phaseList (MachineName ?MachineNam) (FeatureList $?FeatureList))
 =>
 	(printout t ?FeatureNam "Machined by first direction of machine" ?MachineNam crlf)
 
+	(modify ?phaseList (MachineName ?MachineNam)(FeatureList (insert$ $?FeatureList 1 ?FeatureNam)))
 	(assert(FeatureMachinedBy (FeatureName ?FeatureNam)(MachineName ?MachineNam)))
 	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
 	(retract ?machiningDirection)
@@ -413,9 +422,11 @@
 (declare (salience 799))
 	?Machine <- (Machine (Name ?MachineNam) (Orientation2 ?Ori2))
 	?machiningDirection <- (MachiningDirection (Name ?FeatureNam) (Orientation ?Ori2))
+	?phaseList <- (phaseList (MachineName ?MachineNam) (FeatureList $?FeatureList))
 =>
 	(printout t ?FeatureNam "Machined my second direction of machine" ?MachineNam crlf)
 
+	(modify ?phaseList (MachineName ?MachineNam)(FeatureList (insert$ $?FeatureList 1 ?FeatureNam)))
 	(assert(FeatureMachinedBy (FeatureName ?FeatureNam)(MachineName ?MachineNam)))
 	(retract ?machiningDirection)
 	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
@@ -425,10 +436,39 @@
 (declare (salience 798))
 	?Machine <- (Machine (Name ?MachineNam) (Orientation1 ?Ori3))
 	?machiningDirection <- (MachiningDirection (Name ?FeatureNam) (Orientation ?Ori3))
+	?phaseList <- (phaseList (MachineName ?MachineNam) (FeatureList $?FeatureList))
 =>
 	(printout t ?FeatureNam "Machined by third direction of machine" ?MachineNam crlf)
-
+	
 	(assert(FeatureMachinedBy (FeatureName ?FeatureNam)(MachineName ?MachineNam)))
+	(modify ?phaseList (MachineName ?MachineNam)(FeatureList (insert$ $?FeatureList 1 ?FeatureNam)))
 	(retract ?machiningDirection)
 	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
 )
+
+;;---------- Step 5 ----------
+(defrule CheckingCompatHole "Checking Cross hole compatability"  
+(declare (salience 698))
+	?Rel <- (Relationship (Feature1 ?Feature1) (Feature2 ?Feature2) (Relation Cross))
+	?phaseList <- (phaseList (MachineName ?MachineNam) (FeatureList $?FeatureList))
+=>
+	;;(loop-for-count (?cnt1 1 (length$ $?FeatureList)) do
+	;;	(loop-for-count (?cnt2 1 (length$ $?featurelist)) do
+	;;					
+	;;))
+	(if (and (member$ ?Feature1 $?FeatureList) (member$ ?Feature2 $?FeatureList))  then 
+		(printout t (member$ ?Feature1 $?FeatureList) " est dans la meme liste que " (member$ ?Feature2 $?FeatureList) crlf)
+		(printout t ?Feature1 " est dans la meme liste que " ?Feature2 crlf)
+		(if (>(member$ ?Feature1 $?FeatureList)(member$ ?Feature1 $?FeatureList)) then
+			(printout t ?Feature1 " est fait apres " ?Feature2 "ce qui n'est pas normal" crlf)
+			(printout t "on remet dans le bon ordre" crlf)
+			(modify ?phaseList (MachineName ?MachineNam)(FeatureList (insert$ $?FeatureList 1 ?Feature1)))
+		)
+		(retract ?Rel)
+			;;(printout t ?cnt1 " " ?cnt2 crlf)
+	)
+)		
+	;;(assert(Tool (Feature ?Nam)(MinDiameter ?Height))) ;; la fraise doit pouvoir passer sur le coté c'est plutot le diametre / 2 plus un marge mais on securise ....
+
+
+
