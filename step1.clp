@@ -1,0 +1,128 @@
+;;---------- Step 1 ----------
+
+(deftemplate Hole "Definition of the hole structure"
+	(slot Name (type SYMBOL) (default none))
+	(slot Diameter (type FLOAT) (default 0.0))
+	(slot Depth (type FLOAT) (default 0.0))
+	(slot Ftype (type SYMBOL) (allowed-symbols NonThrough Through))
+	(slot Orientation (type INTEGER))
+	(slot Status (type SYMBOL) (allowed-symbols Done NotDone)))
+
+(deftemplate Plane "Definition of the plan structure"
+	(slot Name (type SYMBOL) (default none))
+	(slot Length (type FLOAT) (default 0.0))
+	(slot Width (type FLOAT) (default 0.0))
+	(slot Orientation (type INTEGER))
+	(slot Status (type SYMBOL) (allowed-symbols Done NotDone)))
+
+(deftemplate Slot "Definition of the slot structure"
+	(slot Name (type SYMBOL) (default none))
+	(slot Length (type FLOAT) (default 0.0))
+	(slot Height (type FLOAT) (default 0.0))
+	(slot Width (type FLOAT) (default 0.0))
+	(slot Ftype (type SYMBOL) (allowed-symbols NonThrough Through))
+	(slot Inverse (type SYMBOL) (allowed-symbols NonInverse Inverse))
+	(slot Bottom (type SYMBOL) (allowed-symbols Round Square None)(default Round))
+	(slot BottomOrientation (type INTEGER))
+	(slot SideOrientation (type INTEGER))
+	(slot Status (type SYMBOL) (allowed-symbols Done NotDone)))
+
+(deftemplate Relationship "Definition of the relationships"
+	(slot Feature1 (type SYMBOL) (default none))
+	(slot Feature2 (type SYMBOL) (default none))
+	(slot Relation (type SYMBOL) (allowed-symbols Contact Perpendicular Start_in Lead_to Coaxial Cross NA)(default NA))
+)
+
+(deftemplate Tool "Definition of Tool"
+	(slot Name (type SYMBOL) (default none)) ;; H1, H2 on associe un outil à un trou / plan / slot
+	(slot Type (type SYMBOL) (allowed-symbols DrillBit Mill))
+	(slot Diameter (type FLOAT) (default 0.0))
+	(slot Length (type FLOAT) (default 0.0))
+)
+
+(deftemplate Machine "Definition of Machine"
+	(slot Name (type SYMBOL) (default none)) ;; H1, H2 on associe un outil à un trou / plan
+	(slot Orientation1 (type INTEGER))
+	(slot Orientation2 (type INTEGER))
+	(slot Orientation3 (type INTEGER))
+)
+
+(deftemplate MachiningDirection "Determine direction of machining"
+	(slot Name (type SYMBOL) (default none))
+	(slot Orientation (type INTEGER))
+	(slot FaceSide (type SYMBOL) (allowed-symbols Face Side NA)(default NA))
+)
+(deftemplate FeatureMachinedBy "Determine direction of machining"
+	(slot FeatureName (type SYMBOL) (default none))
+	(slot MachineName (type SYMBOL) (default none))
+)
+
+(deftemplate FeatureMachinedWith "Determine direction of machining"
+	(slot FeatureName (type SYMBOL) (default none))
+	(slot ToolName (type SYMBOL) (default none))
+)
+(deftemplate phaseList "phase list"
+	(slot MachineName (type SYMBOL) (default none))
+	(multislot FeatureList (type SYMBOL) (default none))
+)
+
+(defrule Init "Rule which triggers with the no-fact fact"
+(initial-fact)
+=>
+(assert(Plane (Name P1)(Length 150.0)(Width 50.0)(Orientation -3)(Status NotDone)))
+(assert(Plane (Name P2)(Length 50.0)(Width 50.0)(Orientation 3)(Status NotDone)))
+(assert(Plane (Name P3)(Length 50.0)(Width 20.0)(Orientation 2)(Status NotDone)))
+(assert(Plane (Name P4)(Length 50.0)(Width 20.0)(Orientation -2)(Status NotDone)))
+(assert(Plane (Name P5)(Length 40.0)(Width 10.0)(Orientation -1)(Status NotDone)))
+(assert(Plane (Name P6)(Length 40.0)(Width 10.0)(Orientation -1)(Status NotDone)))
+(assert(Slot (Name S1)(Length 50.0)(Height 5.0)(Width 6.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation 3)(SideOrientation 1)(Status NotDone)))
+(assert(Slot (Name S2)(Length 50.0)(Height 5.0)(Width 6.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation 3)(SideOrientation 1)(Status NotDone)))
+(assert(Slot (Name S3)(Length 40.0)(Height 20.0)(Width 20.0)(Inverse NonInverse)(Ftype NonThrough)(Bottom Square)(BottomOrientation 3)(SideOrientation 1)(Status NotDone)))
+(assert(Slot (Name S4)(Length 40.0)(Height 30.0)(Width 28.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation -3)(SideOrientation 3)(Status NotDone)))
+(assert(Slot (Name S5)(Length 50.0)(Height 8.0)(Width 10.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation -3)(SideOrientation -2)(Status NotDone)))
+(assert(Slot (Name S6)(Length 50.0)(Height 4.0)(Width 24.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation -3)(SideOrientation -2)(Status NotDone)))
+(assert(Slot (Name S7)(Length 50.0)(Height 8.0)(Width 10.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation -3)(SideOrientation -2)(Status NotDone)))
+(assert(Slot (Name S8)(Length 50.0)(Height 4.0)(Width 24.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation -3)(SideOrientation -2)(Status NotDone)))
+(assert(Slot (Name S9)(Length 50.0)(Height 6.0)(Width 20.0)(Inverse Inverse)(Ftype Through)(Bottom Square)(BottomOrientation -2)(SideOrientation 1)(Status NotDone)))
+(assert(Slot (Name S10)(Length 50.0)(Height 6.0)(Width 20.0)(Inverse Inverse)(Ftype Through)(Bottom Square)(BottomOrientation 2)(SideOrientation 1)(Status NotDone)))
+(assert(Slot (Name S11)(Length 50.0)(Height 10.0)(Width 100.0)(Inverse NonInverse)(Ftype Through)(Bottom Square)(BottomOrientation 3)(SideOrientation 2)(Status NotDone)))
+(assert(Hole (Name H1)(Diameter 12.0)(Depth 3.0)(Ftype NonThrough)(Orientation 3)(Status NotDone)))
+(assert(Hole (Name H2)(Diameter 12.0)(Depth 3.0)(Ftype NonThrough)(Orientation 3)(Status NotDone)))
+(assert(Hole (Name H3)(Diameter 6.0)(Depth 47.0)(Ftype Through)(Orientation 3)(Status NotDone)))
+(assert(Hole (Name H4)(Diameter 6.0)(Depth 47.0)(Ftype Through)(Orientation 3)(Status NotDone)))
+(assert(Hole (Name H5)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(Orientation -1)(Status NotDone)))
+(assert(Hole (Name H6)(Diameter 6.0)(Depth 10.0)(Ftype NonThrough)(Orientation -1)(Status NotDone)))
+(assert(Tool (Name DB1)(Type DrillBit)(Diameter 6.0)(Length 10.0)))
+(assert(Tool (Name DB2)(Type DrillBit)(Diameter 12.0)(Length 80.0)))
+(assert(Tool (Name DB3)(Type DrillBit)(Diameter 10.0)(Length 60.0)))
+(assert(Tool (Name DB4)(Type DrillBit)(Diameter 20.0)(Length 70.0)))
+(assert(Tool (Name DB5)(Type DrillBit)(Diameter 6.0)(Length 60.0)))
+(assert(Tool (Name Mill1)(Type Mill)(Diameter 15.0)(Length 40.0)))
+(assert(Tool (Name Mill2)(Type Mill)(Diameter 20.0)(Length 80.0)))
+(assert(Tool (Name Mill3)(Type Mill)(Diameter 4.0)(Length 2.0)))
+(assert(Tool (Name Mill4)(Type Mill)(Diameter 20.0)(Length 3.0)))
+(assert(Tool (Name Mill5)(Type Mill)(Diameter 3.0)(Length 10.0)))
+(assert(Relationship (Feature1 P5)(Feature2 P6)(Relation Contact)))
+(assert(Relationship (Feature1 H1)(Feature2 P2)(Relation Start_in)))
+(assert(Relationship (Feature1 H2)(Feature2 P2)(Relation Start_in)))
+(assert(Relationship (Feature1 H3)(Feature2 P1)(Relation Lead_to)))
+(assert(Relationship (Feature1 H4)(Feature2 P1)(Relation Lead_to)))
+(assert(Relationship (Feature1 H5)(Feature2 P5)(Relation Start_in)))
+(assert(Relationship (Feature1 H6)(Feature2 P5)(Relation Start_in)))
+(assert(Relationship (Feature1 S11)(Feature2 P2)(Relation Start_in)))
+(assert(Relationship (Feature1 S9)(Feature2 P4)(Relation Start_in)))
+(assert(Relationship (Feature1 S10)(Feature2 P3)(Relation Start_in)))
+(assert(Relationship (Feature1 S5)(Feature2 P1)(Relation Start_in)))
+(assert(Relationship (Feature1 S7)(Feature2 P1)(Relation Start_in)))
+(assert(Relationship (Feature1 S4)(Feature2 P5)(Relation Start_in)))
+(assert(Machine (Name M1)(Orientation1 -1)(Orientation2 2)(Orientation3 -2)))
+(assert(Machine (Name M2)(Orientation1 1)(Orientation2 2)(Orientation3 -2)))
+(assert(Machine (Name M3)(Orientation1 2)(Orientation2 3)(Orientation3 3)))
+(assert(Machine (Name M4)(Orientation1 -1)(Orientation2 1)(Orientation3 2)))
+(assert(Machine (Name M5)(Orientation1 -3)(Orientation2 3)(Orientation3 2)))
+(assert(phaseList (MachineName M1)(FeatureList (create$ ) )))
+(assert(phaseList (MachineName M2)(FeatureList (create$ ) )))
+(assert(phaseList (MachineName M3)(FeatureList (create$ ) )))
+(assert(phaseList (MachineName M4)(FeatureList (create$ ) )))
+(assert(phaseList (MachineName M5)(FeatureList (create$ ) )))
+)
